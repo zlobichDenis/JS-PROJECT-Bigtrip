@@ -1,3 +1,8 @@
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!*********************!*\
+  !*** ./src/main.js ***!
+  \*********************/
 const tripInfo = document.querySelector('.trip-main__trip-info');
 const tripNav = document.querySelector('.trip-controls__trip-tabs');
 const tripControls = document.querySelector('.trip-main__trip-controls');
@@ -383,3 +388,7 @@ const addElements = () => {
 };
 //Events
 document.addEventListener('DOMContentLoaded', addElements);
+
+/******/ })()
+;
+//# sourceMappingURL=bundle.js.map
