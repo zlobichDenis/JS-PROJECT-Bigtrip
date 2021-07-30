@@ -537,13 +537,17 @@ const tripEvents = document.querySelector('.trip-events');
 /* const tripDays = document.querySelector('.trip-days'); */
 
 
+const render = (parent, element, position) => {
+   parent.insertAdjacentHTML(position, element);
+};
+
 const addElements = () => {
-    tripInfo.innerHTML += (0,_components_tripInfo_js__WEBPACK_IMPORTED_MODULE_1__.createTripInfo)();
-    tripNav.innerHTML += (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)();
-    tripControls.innerHTML += (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)();
-    tripEvents.innerHTML += (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)();
-    tripEvents.innerHTML += (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)();
-    tripEvents.innerHTML += (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)();
+    render(tripInfo, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
+    render(tripNav, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
+    render(tripControls, (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)(), 'afterbegin');
+    render(tripEvents, (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)(), 'afterbegin');
+    render(tripEvents, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(), 'beforeend');
+    render(tripEvents, (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)(), 'beforeend');
 };
 //Events
 document.addEventListener('DOMContentLoaded', addElements);
