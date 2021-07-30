@@ -530,11 +530,16 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// Variables
 const tripInfo = document.querySelector('.trip-main__trip-info');
 const tripNav = document.querySelector('.trip-controls__trip-tabs');
 const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
 /* const tripDays = document.querySelector('.trip-days'); */
+
+const TRIP_DAYS = 3;
+
+// Functions
 
 
 const render = (parent, element, position) => {
