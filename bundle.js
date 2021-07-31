@@ -520,7 +520,7 @@ const pointsOfDestination = [
     {
         'description': 'some desc',
         'name': 'Amsterdam',
-        picture: [{
+        'picture': [{
                 'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
                 'description': 'Some desc',
             }],
@@ -528,7 +528,7 @@ const pointsOfDestination = [
     {
         'description': 'some desc',
         'name': 'London',
-        picture: [{
+        'picture': [{
                 'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
                 'description': 'Some desc',
             }],
@@ -536,7 +536,7 @@ const pointsOfDestination = [
     {
         'description': 'some desc',
         'name': 'Paris',
-        picture: [{
+        'picture': [{
                 'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
                 'description': 'Some desc',
             }],
@@ -544,7 +544,7 @@ const pointsOfDestination = [
     {
         'description': 'some desc',
         'name': 'Moscow',
-        picture: [{
+        'picture': [{
                 'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
                 'description': 'Some desc',
             }],
@@ -706,8 +706,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
 const generateEvent = (item) => {
     return {
         destination: (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination), 
@@ -735,11 +733,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem)
 /* harmony export */ });
 const getRandomIntNumber = (min, max) => {
-    return Math.random() * (max - min) + min;
+    return parseInt(Math.random() * (max - min) + min);
 };
 
 const getRandomArrayElem = (array) => {
-    return array[getRandomIntNumber];
+    return array[getRandomIntNumber(0, array.length - 1)];
 };
 
 
@@ -833,9 +831,8 @@ const tripEvents = document.querySelector('.trip-events');
 
 const COUNT_EVENTS = 3;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
+console.log(events)
 // Functions
-
-
 const render = (parent, element, position) => {
    parent.insertAdjacentHTML(position, element);
 };
