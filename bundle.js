@@ -262,176 +262,81 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "createTripDay": () => (/* binding */ createTripDay)
 /* harmony export */ });
-const pointOfDestination =  {
-  "base_price": 222, // Сумма цент всех офферов путешествия
-  "date_from": "2019-07-10T22:55:56.845Z",
-  "date_to": "2019-07-11T11:22:13.375Z",
-  "destination": 'Paris', // Массив состоящий из все точек путешествий
-  "id": "0", // Счетчик i
-  "is_favorite": Math.random() > 0.5,
-  "offers": null, // Массив состоящий из всех офферов каждого ивента
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+
+
+
+const createOffersMarkup = (offers) => {
+  return offers.offers.map((offer) => {
+    return `
+    <li class="event__offer">
+      <span class="event__offer-title">${offer.title}</span>
+      &plus;
+      &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
+  </li>
+  `
+  }).join('\n');
+
 };
 
-const createTripEventMarkup = () => {
-
+const createTripEventMarkup = (offers, dateTo, dateFrom, destination, isFavorite, basePrice) => {
+  const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
+  const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
+  const offersList = createOffersMarkup(offers);
   return `
-  <ul class="trip-events__list">
-  <li class="trip-events__item">
-    <div class="event">
-      <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
-      </div>
-      <h3 class="event__title">Taxi to Amsterdam</h3>
+      <li class="trip-events__item">
+      <div class="event">
+        <div class="event__type">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${offers.type}.png" alt="Event type icon">
+        </div>
+        <h3 class="event__title">Taxi to ${destination.name}</h3>
 
-      <div class="event__schedule">
-        <p class="event__time">
-          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
-          &mdash;
-          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+        <div class="event__schedule">
+          <p class="event__time">
+            <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
+            &mdash;
+            <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
+          </p>
+          <p class="event__duration">30M</p>
+        </div>
+
+        <p class="event__price">
+          &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
-        <p class="event__duration">30M</p>
-      </div>
 
-      <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">20</span>
-      </p>
+        <h4 class="visually-hidden">Offers:</h4>
+        <ul class="event__selected-offers">
+          ${offersList}
+        </ul>
 
-      <h4 class="visually-hidden">Offers:</h4>
-      <ul class="event__selected-offers">
-        <li class="event__offer">
-          <span class="event__offer-title">Order Uber</span>
-          &plus;
-          &euro;&nbsp;<span class="event__offer-price">20</span>
-         </li>
-      </ul>
-
-      <button class="event__rollup-btn" type="button">
-        <span class="visually-hidden">Open event</span>
-      </button>
-    </div>
-  </li>
+    <button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+    </button>
+  </div>
+</li>
   `
 };
 
-const createTripDay = () => {
+const createTripDay = (item) => {
+  const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = item;
+
+  const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
+  const dayOfTravel = dateFrom.getDay();
+
+  const tripEventMarkup = createTripEventMarkup(offers, dateTo, dateFrom, destination, isFavorite, basePrice);
+
+
     return `
     <ul class="trip-days">
     <li class="trip-days__item  day">
       <div class="day__info">
         <span class="day__counter">1</span>
-        <time class="day__date" datetime="2019-03-18">MAR 18</time>
+        <time class="day__date" datetime="${dateFrom}">${monthOfTravel} ${dayOfTravel}</time> 
       </div>
 
       <ul class="trip-events__list">
-        <li class="trip-events__item">
-          <div class="event">
-            <div class="event__type">
-              <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
-            </div>
-            <h3 class="event__title">Taxi to Amsterdam</h3>
-
-            <div class="event__schedule">
-              <p class="event__time">
-                <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
-                &mdash;
-                <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
-              </p>
-              <p class="event__duration">30M</p>
-            </div>
-
-            <p class="event__price">
-              &euro;&nbsp;<span class="event__price-value">20</span>
-            </p>
-
-            <h4 class="visually-hidden">Offers:</h4>
-            <ul class="event__selected-offers">
-              <li class="event__offer">
-                <span class="event__offer-title">Order Uber</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">20</span>
-               </li>
-            </ul>
-
-            <button class="event__rollup-btn" type="button">
-              <span class="visually-hidden">Open event</span>
-            </button>
-          </div>
-        </li>
-
-        <li class="trip-events__item">
-          <div class="event">
-            <div class="event__type">
-              <img class="event__type-icon" width="42" height="42" src="img/icons/flight.png" alt="Event type icon">
-            </div>
-            <h3 class="event__title">Flight to Chamonix</h3>
-
-            <div class="event__schedule">
-              <p class="event__time">
-                <time class="event__start-time" datetime="2019-03-18T12:25">12:25</time>
-                &mdash;
-                <time class="event__end-time" datetime="2019-03-18T13:35">13:35</time>
-              </p>
-              <p class="event__duration">1H 10M</p>
-            </div>
-
-            <p class="event__price">
-              &euro;&nbsp;<span class="event__price-value">160</span>
-            </p>
-
-            <h4 class="visually-hidden">Offers:</h4>
-            <ul class="event__selected-offers">
-              <li class="event__offer">
-                <span class="event__offer-title">Add luggage</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">50</span>
-               </li>
-               <li class="event__offer">
-                 <span class="event__offer-title">Switch to comfort</span>
-                 &plus;
-                 &euro;&nbsp;<span class="event__offer-price">80</span>
-                </li>
-            </ul>
-
-            <button class="event__rollup-btn" type="button">
-              <span class="visually-hidden">Open event</span>
-            </button>
-          </div>
-        </li>
-
-        <li class="trip-events__item">
-          <div class="event">
-            <div class="event__type">
-              <img class="event__type-icon" width="42" height="42" src="img/icons/drive.png" alt="Event type icon">
-            </div>
-            <h3 class="event__title">Drive to Chamonix</h3>
-
-            <div class="event__schedule">
-              <p class="event__time">
-                <time class="event__start-time" datetime="2019-03-18T14:30">14:30</time>
-                &mdash;
-                <time class="event__end-time" datetime="2019-03-18T16:05">16:05</time>
-              </p>
-              <p class="event__duration">1H 35M</p>
-            </div>
-
-            <p class="event__price">
-              &euro;&nbsp;<span class="event__price-value">160</span>
-            </p>
-
-            <h4 class="visually-hidden">Offers:</h4>
-            <ul class="event__selected-offers">
-              <li class="event__offer">
-                <span class="event__offer-title">Rent a car</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">200</span>
-               </li>
-            </ul>
-
-            <button class="event__rollup-btn" type="button">
-              <span class="visually-hidden">Open event</span>
-            </button>
-          </div>
-        </li>
+        ${tripEventMarkup}
         </ul>
     `
 };
@@ -500,6 +405,35 @@ const createTripInfo = () => {
         </p>
     `
 };
+
+
+
+/***/ }),
+
+/***/ "./src/const.js":
+/*!**********************!*\
+  !*** ./src/const.js ***!
+  \**********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "MONTH_NAMES": () => (/* binding */ MONTH_NAMES)
+/* harmony export */ });
+const MONTH_NAMES = [
+    'January',
+    'Febrary',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'Semtember',
+    'October',
+    'November',
+    'December',
+];
 
 
 
@@ -653,7 +587,7 @@ const offers = [
             }, 
         ],
     },  {
-        'type': 'chek-in',
+        'type': 'check-in',
         'offers': [
             {
                 "title": "Add breakfest",
@@ -661,7 +595,7 @@ const offers = [
             }
         ],
     },  {
-        'type': 'sightseein',
+        'type': 'sightseeing',
         'offers': [
             {
                 "title": "Book tickets",
@@ -706,18 +640,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 const generateEvent = (item) => {
     const destination = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination);
     const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
     return {
         "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": "2019-07-10T22:55:56.845Z",
-        "date_to": "2019-07-11T11:22:13.375Z",
+        "date_from": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(1), // функция для определения
+        "date_to": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(2),
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": "0", // Счетчик i
         "is_favorite": Math.random() > 0.5,
         "offers": offer, // Массив состоящий из всех офферов каждого ивента
-        
     }
 };
 
@@ -738,7 +672,10 @@ const generateEvents = (count) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "getRandomIntNumber": () => (/* binding */ getRandomIntNumber),
-/* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem)
+/* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem),
+/* harmony export */   "getRandomDate": () => (/* binding */ getRandomDate),
+/* harmony export */   "castTimeFormat": () => (/* binding */ castTimeFormat),
+/* harmony export */   "formatTime": () => (/* binding */ formatTime)
 /* harmony export */ });
 const getRandomIntNumber = (min, max) => {
     return parseInt(Math.random() * (max - min) + min);
@@ -748,6 +685,25 @@ const getRandomArrayElem = (array) => {
     return array[getRandomIntNumber(0, array.length - 1)];
 };
 
+const getRandomDate = (sign) => {
+    const targetDate = new Date;
+    const diffValue = sign * getRandomIntNumber(0, 10);
+
+    targetDate.setDate(targetDate.getDate() + diffValue);
+
+    return targetDate
+};
+
+const castTimeFormat = (value) => {
+    return value < 10 ? `0${value}` : String(value);
+};
+
+const formatTime = (date) => {
+    const hours = castTimeFormat(date.getHours() % 12);
+    const minutes = castTimeFormat(date.getMinutes())
+
+    return `${hours}:${minutes}`
+};
 
 
 /***/ })
@@ -839,7 +795,6 @@ const tripEvents = document.querySelector('.trip-events');
 
 const COUNT_EVENTS = 3;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
-console.log(events)
 // Functions
 const render = (parent, element, position) => {
    parent.insertAdjacentHTML(position, element);
@@ -850,7 +805,9 @@ const addElements = () => {
     render(tripNav, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
     render(tripControls, (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)(), 'afterbegin');
     render(tripEvents, (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)(), 'afterbegin');
-    render(tripEvents, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(), 'beforeend');
+    for(let i = 0; i < events.length; i++) {
+        render(tripEvents, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(events[i]), 'beforeend');
+    };
     render(tripEvents, (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)(), 'beforeend');
 };
 //Events
