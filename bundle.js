@@ -263,13 +263,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createTripDay": () => (/* binding */ createTripDay)
 /* harmony export */ });
 const pointOfDestination =  {
-  "base_price": 222,
+  "base_price": 222, // Сумма цент всех офферов путешествия
   "date_from": "2019-07-10T22:55:56.845Z",
   "date_to": "2019-07-11T11:22:13.375Z",
-  "destination": 'Paris', // Функция для рандомного определения элемента из массива
+  "destination": 'Paris', // Массив состоящий из все точек путешествий
   "id": "0", // Счетчик i
   "is_favorite": Math.random() > 0.5,
-  "offers": null, // Элмент из массива offers
+  "offers": null, // Массив состоящий из всех офферов каждого ивента
 };
 
 const createTripEventMarkup = () => {
@@ -707,9 +707,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const generateEvent = (item) => {
+    const destination = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination);
+    const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
     return {
-        destination: (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination), 
-        offer: (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers),
+        "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
+        "date_from": "2019-07-10T22:55:56.845Z",
+        "date_to": "2019-07-11T11:22:13.375Z",
+        "destination": destination, // Массив состоящий из все точек путешествий
+        "id": "0", // Счетчик i
+        "is_favorite": Math.random() > 0.5,
+        "offers": offer, // Массив состоящий из всех офферов каждого ивента
+        
     }
 };
 
