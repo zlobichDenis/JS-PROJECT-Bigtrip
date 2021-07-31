@@ -263,6 +263,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createTripDay": () => (/* binding */ createTripDay)
 /* harmony export */ });
 const pointOfDestination =  {
+  "base_price": 222,
   "date_from": "2019-07-10T22:55:56.845Z",
   "date_to": "2019-07-11T11:22:13.375Z",
   "destination": 'Paris', // Функция для рандомного определения элемента из массива
@@ -502,6 +503,247 @@ const createTripInfo = () => {
 
 
 
+/***/ }),
+
+/***/ "./src/data.js":
+/*!*********************!*\
+  !*** ./src/data.js ***!
+  \*********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "pointsOfDestination": () => (/* binding */ pointsOfDestination),
+/* harmony export */   "offers": () => (/* binding */ offers)
+/* harmony export */ });
+const pointsOfDestination = [
+    {
+        'description': 'some desc',
+        'name': 'Amsterdam',
+        picture: [{
+                'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
+                'description': 'Some desc',
+            }],
+    },
+    {
+        'description': 'some desc',
+        'name': 'London',
+        picture: [{
+                'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
+                'description': 'Some desc',
+            }],
+    },
+    {
+        'description': 'some desc',
+        'name': 'Paris',
+        picture: [{
+                'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
+                'description': 'Some desc',
+            }],
+    },
+    {
+        'description': 'some desc',
+        'name': 'Moscow',
+        picture: [{
+                'picture': `http://picsum.photos/248/152?r=${Math.random()}`, 
+                'description': 'Some desc',
+            }],
+    },
+];
+
+const offers = [
+    {
+        'type': 'taxi',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Choose the radio station",
+                "price": 60,
+            },
+            {
+                'title': 'Order Uber',
+                'price': 20,
+            }
+        ],
+    },{
+        'type': 'flight',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Chose seats",
+                "price": 5,
+            },
+            {
+                'title': 'add meal',
+                'price': 15,
+            },
+            {
+                'title': 'add luggage',
+                'price': 30,
+            }
+        ],
+    },{
+        'type': 'train',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Chose seats",
+                "price": 5,
+            },
+        ],
+    }, {
+        'type': 'ship',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Chose seats",
+                "price": 5,
+            },
+        ],
+    },{
+        'type': 'bus',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Chose seats",
+                "price": 5,
+            },
+            {
+                "title": "Choose the radio station",
+                "price": 60,
+            },
+        ],
+    }, {
+        'type': 'transport',
+        'offers': [
+            {
+                "title": "Upgrade to a business class",
+                "price": 120,
+            }, 
+            {
+                "title": "Chose seats",
+                "price": 5,
+            },
+            {
+                "title": "Choose the radio station",
+                "price": 60,
+            },
+        ],
+    }, {
+        'type': 'drive',
+        'offers': [
+            {
+                "title": "Rent a car",
+                "price": 200,
+            }, 
+        ],
+    },  {
+        'type': 'chek-in',
+        'offers': [
+            {
+                "title": "Add breakfest",
+                "price": 50,
+            }
+        ],
+    },  {
+        'type': 'sightseein',
+        'offers': [
+            {
+                "title": "Book tickets",
+                "price": 40,
+            }, 
+            {
+                "title": "Lunch in city",
+                "price": 30,
+            }
+        ],
+    },  {
+        'type': 'restaurant',
+        'offers': [
+            {
+                "title": "Breakfest",
+                "price": 120,
+            }, 
+            {
+                "title": "Lunch",
+                "price": 60,
+            }
+        ],
+    }, 
+];
+
+
+
+/***/ }),
+
+/***/ "./src/mock/events.js":
+/*!****************************!*\
+  !*** ./src/mock/events.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "generateEvents": () => (/* binding */ generateEvents)
+/* harmony export */ });
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _data_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../data.js */ "./src/data.js");
+
+
+
+
+
+const generateEvent = (item) => {
+    return {
+        destination: (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination), 
+        offer: (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers),
+    }
+};
+
+const generateEvents = (count) => {
+    return new Array(count).fill('').map((item) => generateEvent(item));
+};
+
+
+
+/***/ }),
+
+/***/ "./src/util.js":
+/*!*********************!*\
+  !*** ./src/util.js ***!
+  \*********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getRandomIntNumber": () => (/* binding */ getRandomIntNumber),
+/* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem)
+/* harmony export */ });
+const getRandomIntNumber = (min, max) => {
+    return Math.random() * (max - min) + min;
+};
+
+const getRandomArrayElem = (array) => {
+    return array[getRandomIntNumber];
+};
+
+
+
 /***/ })
 
 /******/ 	});
@@ -573,6 +815,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_sort_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/sort.js */ "./src/components/sort.js");
 /* harmony import */ var _components_form_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/form.js */ "./src/components/form.js");
 /* harmony import */ var _components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/tripDay.js */ "./src/components/tripDay.js");
+/* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
+
 
 
 
@@ -587,8 +831,8 @@ const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
 /* const tripDays = document.querySelector('.trip-days'); */
 
-const TRIP_DAYS = 3;
-
+const COUNT_EVENTS = 3;
+const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
 // Functions
 
 
