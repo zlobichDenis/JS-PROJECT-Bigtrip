@@ -13,6 +13,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createForm": () => (/* binding */ createForm)
 /* harmony export */ });
 const createForm = () => {
+  
     return `
     <form class="trip-events__item  event  event--edit" action="#" method="post">
     <header class="event__header">
@@ -260,12 +261,23 @@ const createSort = () => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "createTripDay": () => (/* binding */ createTripDay)
+/* harmony export */   "createTripDay": () => (/* binding */ createTripDay),
+/* harmony export */   "createTripEventMarkup": () => (/* binding */ createTripEventMarkup)
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
 
 
+
+const createNewDayMarkup = () => {
+  return `
+  <li class="trip-days__item  day">
+  <div class="day__info">
+    <span class="day__counter">1</span>
+    <time class="day__date" datetime="${dateFrom}">${monthOfTravel} ${dayOfTravel}</time> 
+  </div>
+  `
+};
 
 const createOffersMarkup = (offers) => {
   return offers.offers.map((offer) => {
@@ -280,7 +292,9 @@ const createOffersMarkup = (offers) => {
 
 };
 
-const createTripEventMarkup = (offers, dateTo, dateFrom, destination, isFavorite, basePrice) => {
+const createTripEventMarkup = (item) => {
+  const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = item;
+
   const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
   const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
   const offersList = createOffersMarkup(offers);
@@ -318,28 +332,30 @@ const createTripEventMarkup = (offers, dateTo, dateFrom, destination, isFavorite
   `
 };
 
-const createTripDay = (item) => {
+const createTripDay = (item, array) => {
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = item;
-
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
   const dayOfTravel = dateFrom.getDay();
 
-  const tripEventMarkup = createTripEventMarkup(offers, dateTo, dateFrom, destination, isFavorite, basePrice);
+  const events = array.join('\n')
 
-
-    return `
-    <ul class="trip-days">
-    <li class="trip-days__item  day">
-      <div class="day__info">
+ const newDayDiv = `             
         <span class="day__counter">1</span>
-        <time class="day__date" datetime="${dateFrom}">${monthOfTravel} ${dayOfTravel}</time> 
-      </div>
-
-      <ul class="trip-events__list">
-        ${tripEventMarkup}
+        <time class="day__date" datetime="2019-03-18">${monthOfTravel} ${dayOfTravel}</time>
+    `;
+  /*   const isANewDay = i % 3 === 0 ? newDayDiv : ''; */
+/*     const tripEventMarkup = createTripEventMarkup(item); */
+    
+    return  `
+      <li class="trip-days__item  day">
+        <div class="day__info">${newDayDiv}</div>
+        <ul class="trip-events__list">
+          ${events}
         </ul>
+      </li>
     `
 };
+
 
 
 
@@ -646,8 +662,8 @@ const generateEvent = (item) => {
     const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
     return {
         "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(1), // функция для определения
-        "date_to": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(2),
+        "date_from": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(), // функция для определения
+        "date_to": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(),
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": "0", // Счетчик i
         "is_favorite": Math.random() > 0.5,
@@ -685,8 +701,9 @@ const getRandomArrayElem = (array) => {
     return array[getRandomIntNumber(0, array.length - 1)];
 };
 
-const getRandomDate = (sign) => {
+const getRandomDate = () => {
     const targetDate = new Date;
+    const sign = Math.random() > 0.5 ? 1 : -1;
     const diffValue = sign * getRandomIntNumber(0, 10);
 
     targetDate.setDate(targetDate.getDate() + diffValue);
@@ -791,27 +808,38 @@ const tripInfo = document.querySelector('.trip-main__trip-info');
 const tripNav = document.querySelector('.trip-controls__trip-tabs');
 const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
-/* const tripDays = document.querySelector('.trip-days'); */
+const tripDays = document.querySelector('.trip-days');
 
-const COUNT_EVENTS = 3;
+const COUNT_EVENTS = 20;
+const COUNT_OF_DAYS = 3;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
+const counter = 1;
 // Functions
 const render = (parent, element, position) => {
    parent.insertAdjacentHTML(position, element);
 };
 
-const addElements = () => {
-    render(tripInfo, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
-    render(tripNav, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
-    render(tripControls, (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)(), 'afterbegin');
-    render(tripEvents, (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)(), 'afterbegin');
-    for(let i = 0; i < events.length; i++) {
-        render(tripEvents, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(events[i]), 'beforeend');
-    };
-    render(tripEvents, (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)(), 'beforeend');
-};
+
+const eventsMarkup = events.map((item) => (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripEventMarkup)(item));
+
+
+render(tripInfo, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
+render(tripNav, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
+render(tripControls, (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)(), 'afterbegin');
+render(tripEvents, (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)(events[0]), 'afterbegin');
+render(tripEvents, (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)(), 'afterbegin');
+for(let i = 1; i <= COUNT_OF_DAYS ; i++) {
+    render(tripDays, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(events[i], eventsMarkup.slice(i, i+3)), 'beforeend');
+}
+
+
+
+
+
+
+
 //Events
-document.addEventListener('DOMContentLoaded', addElements);
+
 
 })();
 
