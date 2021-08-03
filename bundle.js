@@ -332,14 +332,13 @@ const createTripEventMarkup = (item) => {
   `
 };
 
-const createTripDay = (item, arr, i) => {
-  const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = item;
+const createTripDay = (firstDay, eventsByDate, counterOfDay) => {
+  const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
   const dayOfTravel = dateFrom.getDay();
 
-  const counterOfDay = i;
 
-  const events = arr.map((tripEvent) => {
+  const events = eventsByDate.map((tripEvent) => {
     return createTripEventMarkup(tripEvent)
   }).join('\n')
 
@@ -350,7 +349,8 @@ const createTripDay = (item, arr, i) => {
     
     return  `
       <li class="trip-days__item  day">
-        <div class="day__info">${newDayDiv}</div>
+        <div class="day__info"><span class="day__counter">${counterOfDay}</span>
+        <time class="day__date" datetime="2019-03-18">${monthOfTravel} ${dayOfTravel}</time></div>
         <ul class="trip-events__list">
           ${events}
         </ul>
@@ -693,7 +693,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem),
 /* harmony export */   "getRandomDate": () => (/* binding */ getRandomDate),
 /* harmony export */   "castTimeFormat": () => (/* binding */ castTimeFormat),
-/* harmony export */   "formatTime": () => (/* binding */ formatTime)
+/* harmony export */   "formatTime": () => (/* binding */ formatTime),
+/* harmony export */   "sortDatesAscending": () => (/* binding */ sortDatesAscending),
+/* harmony export */   "groupByDays": () => (/* binding */ groupByDays),
+/* harmony export */   "getDatesOfEventDays": () => (/* binding */ getDatesOfEventDays)
 /* harmony export */ });
 const getRandomIntNumber = (min, max) => {
     return parseInt(Math.random() * (max - min) + min);
@@ -723,6 +726,36 @@ const formatTime = (date) => {
 
     return `${hours}:${minutes}`
 };
+
+const sortDatesAscending = (arr) => {
+    return arr.sort(function(a,b){
+        return a.date_from.getTime() - b.date_from.getTime()
+      }); 
+};
+
+const groupByDays = (events) => {
+    return events.reduce((acc, elem)=> {
+    const date = elem.date_from;
+    if (acc[date]) {
+        acc[date].push(elem);
+      } else {
+        acc[date] = [elem];
+      }
+      return acc;
+}, {})
+};
+
+const getDatesOfEventDays = (events) => {
+    const datesOfEvents = events.map((eventMock) => {
+        return eventMock.date_from
+    });
+    
+    const setDate = new Set(datesOfEvents);
+
+    return setDate;
+};
+
+
 
 
 /***/ })
@@ -797,6 +830,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_form_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/form.js */ "./src/components/form.js");
 /* harmony import */ var _components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/tripDay.js */ "./src/components/tripDay.js");
 /* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
+
+
 
 
 
@@ -813,50 +849,26 @@ const tripEvents = document.querySelector('.trip-events');
 const tripDays = document.querySelector('.trip-days');
 
 const COUNT_EVENTS = 10;
+let counterOfDays = 1;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
+
+const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.sortDatesAscending)(events);
+const groupOfEventsByDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.groupByDays)(sortedEvents);
+const eventDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.getDatesOfEventDays)(sortedEvents);
+
 // Functions
 const render = (parent, element, position) => {
    parent.insertAdjacentHTML(position, element);
 };
-
-events.sort(function(a,b){return a.date_from.getTime() - b.date_from.getTime()}); // сортировка массива данных по возрастанию даты
-
-
-const groupByDays = events.reduce((acc, elem)=> {
-    const date = elem.date_from;
-    if (acc[date]) {
-        acc[date].push(elem)
-      } else {
-        acc[date] = [elem]
-      }
-      return acc
-}, {});
-
-
-
-const eventsMarkup = events.map((item) => (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripEventMarkup)(item));
-const dates = events.map((eventMock) => {
-    return eventMock.date_from
-});
-
-const setDate = new Set(dates);
-const COUNT_OF_DAYS = setDate.size;
-
 
 render(tripInfo, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
 render(tripNav, (0,_components_menu_js__WEBPACK_IMPORTED_MODULE_0__.createMenu)(), 'afterbegin');
 render(tripControls, (0,_components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.createTripFilters)(), 'afterbegin');
 render(tripEvents, (0,_components_form_js__WEBPACK_IMPORTED_MODULE_4__.createForm)(events[0]), 'afterbegin');
 render(tripEvents, (0,_components_sort_js__WEBPACK_IMPORTED_MODULE_3__.createSort)(), 'afterbegin');
-/* for(let i = 1; i <= COUNT_OF_DAYS ; i++) {
-    render(tripDays, createTripDay(groupByDays[setDate[i]], i), 'beforeend');
-}; */
-
-let counter = 1
-for(let date of setDate) {
-    console.log(groupByDays[date])
-    render(tripDays, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(groupByDays[date][0],groupByDays[date], counter), 'beforeend');
-    counter++
+for(let date of eventDays) {
+    render(tripDays, (0,_components_tripDay_js__WEBPACK_IMPORTED_MODULE_5__.createTripDay)(groupOfEventsByDays[date][0],groupOfEventsByDays[date], counterOfDays), 'beforeend');
+    counterOfDays++
 }
 
 
