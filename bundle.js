@@ -7,7 +7,7 @@
   \*********************/
 /***/ (() => {
 
-throw new Error("Module parse failed: Identifier 'render' has already been declared (29:6)\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\n| \n| // Functions\n> const render = (parent, element, position) => {\n|    parent.insertAdjacentHTML(position, element);\n| };");
+throw new Error("Module parse failed: Identifier 'render' has already been declared (30:6)\nYou may need an appropriate loader to handle this file type, currently no loaders are configured to process this file. See https://webpack.js.org/concepts#loaders\n| \n| // Functions\n> const render = (parent, element, position) => {\n|    parent.insertAdjacentHTML(position, element);\n| };");
 
 /***/ })
 
