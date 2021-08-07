@@ -396,7 +396,6 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
   const dayOfTravel = dateFrom.getDay();
 
-  console.log(eventsByDate)
   const events = eventsByDate.map((tripEvent) => {
     return createTripEventMarkup(tripEvent)
   }).join('\n')
