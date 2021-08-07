@@ -326,8 +326,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+let counterOfDays = 1;
 const renderEventDays = (groupOfEventsByDays, date, tripList) => {
-    let counterOfDays = 1;
+
     const clickOnEditFormBtn = () => {
         replace(editForm, tripDayComponent);
     };
