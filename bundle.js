@@ -55,6 +55,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 
@@ -187,26 +189,15 @@ const createEditFormTemplate = (tripEvent) => {
     `
 };
 
-class EditForm {
+class EditForm extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
   constructor(tripEvent) {
+    super();
     this._tripEvent = tripEvent[0];
     this._element = null
   }
 
   getTemplate() {
     return createEditFormTemplate(this._tripEvent);
-  }
-
-  getElement() {
-    if(!this._element) {
-      return this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.createElement)(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 };
 
@@ -224,6 +215,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ TripMenu)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 const createMenuTemplate = () => { 
@@ -234,25 +227,9 @@ const createMenuTemplate = () => {
     `
 };
 
-class TripMenu {
-    constructor() {
-      this._element = null
-    }
-  
+class TripMenu extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default{
     getTemplate() {
       return createMenuTemplate();
-    }
-  
-    getElement() {
-      if(!this._element) {
-        return this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
-      }
-  
-      return this._element;
-    }
-  
-    removeElement() {
-      this._element = null;
     }
   };
 
@@ -270,6 +247,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ TripSort)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 const createSortTemplate = () => {
@@ -306,25 +285,9 @@ const createSortTemplate = () => {
     `
 };
 
-class TripSort {
-    constructor() {
-      this._element = null
-    }
-  
+class TripSort extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
     getTemplate() {
       return createSortTemplate();
-    }
-  
-    getElement() {
-      if(!this._element) {
-        return this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
-      }
-  
-      return this._element;
-    }
-  
-    removeElement() {
-      this._element = null;
     }
   };
 
@@ -342,33 +305,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ TripList)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 const createTripDaysList = () => {
     return `<ul class="trip-days"></ul>`
 };
 
-class TripList {
-    constructor() {
-        this._element = null;
-    }
-
+class TripList extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
     getTemplate() {
         return createTripDaysList();
     }
-
-    getElement() {
-        if(!this._element) {
-            this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
-        }
-
-        return this._element;
-    }
-
-    removeElement() {
-        this._element = null;
-    }
-};
+}
 
 /***/ }),
 
@@ -463,6 +412,7 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
 class TripDay extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
   constructor(eventsByDate, counterOfDay) {
+    super();
     this._eventsDays = eventsByDate;
     this._counterOfDay = counterOfDay;
     this._element = null
@@ -489,6 +439,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Filters)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 const createTripFiltersTemplate = () => {
@@ -513,27 +465,11 @@ const createTripFiltersTemplate = () => {
     `
 };
 
-class Filters {
-    constructor() {
-      this._element = null
-    }
-  
+class Filters extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
     getTemplate() {
       return createTripFiltersTemplate();
     }
-  
-    getElement() {
-      if(!this._element) {
-        return this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
-      }
-  
-      return this._element;
-    }
-  
-    removeElement() {
-      this._element = null;
-    }
-  };
+};
 
 
 
@@ -564,26 +500,10 @@ const createTripInfoTemplate = () => {
 };
 
 class TripInfo {
-    constructor() {
-      this._element = null
-    }
-  
     getTemplate() {
       return createTripInfoTemplate();
     }
-  
-    getElement() {
-      if(!this._element) {
-        return this._element = createElement(this.getTemplate());
-      }
-  
-      return this._element;
-    }
-  
-    removeElement() {
-      this._element = null;
-    }
-  };
+};
 
 
 /***/ }),
