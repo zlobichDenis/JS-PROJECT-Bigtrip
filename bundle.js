@@ -12,7 +12,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ AbstractComponent)
 /* harmony export */ });
-/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../render.js */ "./src/render.js");
 
 
 class AbstractComponent {
@@ -29,7 +29,7 @@ class AbstractComponent {
 
     getElement() {
         if(!this._element) {
-            this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
+            this._element = (0,_render_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
         }
 
         return this._element;
@@ -763,6 +763,53 @@ const generateEvents = (count) => {
 
 /***/ }),
 
+/***/ "./src/render.js":
+/*!***********************!*\
+  !*** ./src/render.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "createElement": () => (/* binding */ createElement),
+/* harmony export */   "RenderPosition": () => (/* binding */ RenderPosition),
+/* harmony export */   "replace": () => (/* binding */ replace),
+/* harmony export */   "render": () => (/* binding */ render)
+/* harmony export */ });
+const createElement = (template) => {
+    const newElement = document.createElement('div');
+    newElement.innerHTML = template;
+    return newElement.firstChild;
+};
+
+
+const RenderPosition = {
+    AFTERBEGIN: 'afterbegin',
+    BEFOREEND: 'beforeend',
+};
+
+const replace = (newComponent, oldComponent) => {
+    const parentElement = oldComponent.getElement().parentElement;
+    const oldElement = oldComponent.getElement();
+    const newElement = newComponent.getElement();
+
+    parentElement.replaceChild(newElement, oldElement);
+};
+
+const render = (container, component, place) => {
+    const element = component.getElement();
+    switch (place) {
+        case RenderPosition.AFTERBEGIN:
+            container.prepend(element);
+            break;
+        case RenderPosition.BEFOREEND:
+            container.append(element)
+            break;
+    }
+};
+
+/***/ }),
+
 /***/ "./src/util.js":
 /*!*********************!*\
   !*** ./src/util.js ***!
@@ -771,9 +818,6 @@ const generateEvents = (count) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "createElement": () => (/* binding */ createElement),
-/* harmony export */   "RenderPosition": () => (/* binding */ RenderPosition),
-/* harmony export */   "render": () => (/* binding */ render),
 /* harmony export */   "getRandomIntNumber": () => (/* binding */ getRandomIntNumber),
 /* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem),
 /* harmony export */   "getRandomDate": () => (/* binding */ getRandomDate),
@@ -840,28 +884,6 @@ const getDatesOfEventDays = (events) => {
     return setDate;
 };
 
-const createElement = (template) => {
-    const newElement = document.createElement('div');
-    newElement.innerHTML = template;
-    return newElement.firstChild;
-};
-
-
-const RenderPosition = {
-    AFTERBEGIN: 'afterbegin',
-    BEFOREEND: 'beforeend',
-};
-
-const render = (container, element, place) => {
-    switch (place) {
-        case RenderPosition.AFTERBEGIN:
-            container.prepend(element);
-            break;
-        case RenderPosition.BEFOREEND:
-            container.append(element)
-            break;
-    }
-};
 
 
 
@@ -938,8 +960,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_sort_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/sort.js */ "./src/components/sort.js");
 /* harmony import */ var _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/tripFilters.js */ "./src/components/tripFilters.js");
 /* harmony import */ var _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/trip-days-list.js */ "./src/components/trip-days-list.js");
-/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
 /* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
 
 
 
@@ -964,21 +987,22 @@ const COUNT_EVENTS = 10;
 let counterOfDays = 1;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_8__.generateEvents)(COUNT_EVENTS);
 
-const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.sortDatesAscending)(events);
-const groupOfEventsByDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.groupByDays)(sortedEvents);
-const eventDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.getDatesOfEventDays)(sortedEvents);
+const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_9__.sortDatesAscending)(events);
+const groupOfEventsByDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(sortedEvents);
+const eventDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_9__.getDatesOfEventDays)(sortedEvents);
 
-(0,_util_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_2__.default().getElement(), _util_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.AFTERBEGIN);
-(0,_util_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_5__.default().getElement(), _util_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_2__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.AFTERBEGIN);
+(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_5__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
 
 const renderEventDays = (groupOfEventsByDays, date, tripList) => {
     const clickOnEditFormBtn = () => {
-        tripList.replaceChild(editForm.getElement(), tripDayComponent.getElement());
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(editForm, tripDayComponent);
     };
 
     const clickOnSaveFormBtn = (evt) => {
         evt.preventDefault();
         tripList.replaceChild(tripDayComponent.getElement(), editForm.getElement());
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(tripDayComponent, editForm);
     };
 
     const tripDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_0__.default(groupOfEventsByDays[date], counterOfDays);
@@ -990,13 +1014,13 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
     editBtn.addEventListener('click', clickOnEditFormBtn);
     saveFormBtn.addEventListener('click', clickOnSaveFormBtn);
 
-    (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent.getElement(), _util_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+    (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
     counterOfDays++
 };
 
 const renderTripEventsList = (groupOfEventsByDays, eventDays, counterOfDays) => {
-    (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_sort_js__WEBPACK_IMPORTED_MODULE_4__.default().getElement(), _util_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
-    (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__.default().getElement(), _util_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+    (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_sort_js__WEBPACK_IMPORTED_MODULE_4__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+    (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
 
     const tripList = document.querySelector('.trip-days');
 
