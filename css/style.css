@@ -661,6 +661,7 @@ main {
             transform: translateY(-50%); }
 
 .event__title {
+  text-transform: capitalize;
   -ms-flex-negative: 0;
       flex-shrink: 0;
   width: 298px;

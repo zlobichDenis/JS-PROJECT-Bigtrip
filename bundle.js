@@ -361,7 +361,7 @@ const createTripEventMarkup = (item) => {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${offers.type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">Taxi to ${destination.name}</h3>
+        <h3 class="event__title">${offers.type} to ${destination.name}</h3>
 
         <div class="event__schedule">
           <p class="event__time">
@@ -793,7 +793,11 @@ const replace = (newComponent, oldComponent) => {
     const oldElement = oldComponent.getElement();
     const newElement = newComponent.getElement();
 
-    parentElement.replaceChild(newElement, oldElement);
+    const isExistElement = !!(parentElement && newElement && oldElement);
+
+    if(isExistElement && parentElement.contains(oldElement)) {
+        parentElement.replaceChild(newElement, oldElement);
+    }
 };
 
 const render = (container, component, place) => {
@@ -977,11 +981,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 // Variables
-const tripInfo = document.querySelector('.trip-main__trip-info');
-const tripNav = document.querySelector('.trip-controls__trip-tabs');
 const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
-const tripDays = document.querySelector('.trip-days');
+
 
 const COUNT_EVENTS = 10;
 let counterOfDays = 1;
@@ -1001,20 +1003,23 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
 
     const clickOnSaveFormBtn = (evt) => {
         evt.preventDefault();
-        tripList.replaceChild(tripDayComponent.getElement(), editForm.getElement());
         (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(tripDayComponent, editForm);
     };
 
     const tripDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_0__.default(groupOfEventsByDays[date], counterOfDays);
-    const editBtn = tripDayComponent.getElement().querySelector('.event__rollup-btn');
+    const editBtns = tripDayComponent.getElement().querySelectorAll('.event__rollup-btn');
 
     const editForm = new _components_form_js__WEBPACK_IMPORTED_MODULE_3__.default(groupOfEventsByDays[date]);
-    const saveFormBtn = editForm.getElement().querySelector('.event__save-btn');
+    const saveFormBtns = editForm.getElement().querySelectorAll('.event__save-btn');
 
-    editBtn.addEventListener('click', clickOnEditFormBtn);
-    saveFormBtn.addEventListener('click', clickOnSaveFormBtn);
+    editBtns.forEach((btn) => {
+        btn.addEventListener('click', clickOnEditFormBtn);
+    })
+    saveFormBtns.forEach((btn) => {
+        btn.addEventListener('click', clickOnSaveFormBtn);
+    })
 
-    (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+    ;(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
     counterOfDays++
 };
 
