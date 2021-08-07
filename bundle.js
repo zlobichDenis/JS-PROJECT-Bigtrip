@@ -310,10 +310,67 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TripListController)
 /* harmony export */ });
+/* harmony import */ var _menu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./menu */ "./src/components/menu.js");
+/* harmony import */ var _sort__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./sort */ "./src/components/sort.js");
+/* harmony import */ var _trip_days_list__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./trip-days-list */ "./src/components/trip-days-list.js");
+/* harmony import */ var _tripFilters__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tripFilters */ "./src/components/tripFilters.js");
+/* harmony import */ var _tripDay_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./tripDay.js */ "./src/components/tripDay.js");
+/* harmony import */ var _form_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./form.js */ "./src/components/form.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../render.js */ "./src/render.js");
+
+
+
+
+
+
+
+
+
+const renderEventDays = (groupOfEventsByDays, date, tripList) => {
+    let counterOfDays = 1;
+    const clickOnEditFormBtn = () => {
+        replace(editForm, tripDayComponent);
+    };
+
+    const clickOnSaveFormBtn = (evt) => {
+        evt.preventDefault();
+        replace(tripDayComponent, editForm);
+    };
+
+    const tripDayComponent = new _tripDay_js__WEBPACK_IMPORTED_MODULE_4__.default(groupOfEventsByDays[date], counterOfDays);
+    const editForm = new _form_js__WEBPACK_IMPORTED_MODULE_5__.default(groupOfEventsByDays[date]);
+
+    tripDayComponent.setEditButtonClickHandler(() => {
+        clickOnEditFormBtn();
+    })
+    editForm.setSaveBtnClickHandler((evt) => {
+        evt.preventDefault();
+        clickOnSaveFormBtn(evt);
+    })
+
+    ;(0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
+    counterOfDays++
+};
+
 class TripListController {
     constructor(container) {
         this._container = container;
-        
+        this._menu = new _menu__WEBPACK_IMPORTED_MODULE_0__.default();
+        this._tripList = new _trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
+        this._sort = new _sort__WEBPACK_IMPORTED_MODULE_1__.default();
+        this._filters = new _tripFilters__WEBPACK_IMPORTED_MODULE_3__.default();
+    }
+
+    render(groupOfEventsByDays) {
+
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(this._container, this._tripList, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
+
+        const tripDays = Object.keys(groupOfEventsByDays);
+
+        tripDays.forEach((date) => {
+            renderEventDays(groupOfEventsByDays, date, this._tripList.getElement());
+        });
     }
 }
 
@@ -346,6 +403,83 @@ class TripList extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defau
 
 /***/ }),
 
+/***/ "./src/components/trip-event.js":
+/*!**************************************!*\
+  !*** ./src/components/trip-event.js ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ TripDayEvents)
+/* harmony export */ });
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+
+
+
+const createOffersMarkup = (offers) => {
+    return offers.offers.map((offer) => {
+      return `<li class="event__offer">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;
+        &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
+    </li>
+    `
+    }).join('\n');
+  
+  };
+  
+  const createTripEventMarkup = (tripEvents) => {
+    return tripEvents.map((tripEvent) => {
+        const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
+  
+        const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
+        const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
+        const offersList = createOffersMarkup(offers);
+        return `<li class="trip-events__item">
+            <div class="event">
+              <div class="event__type">
+                <img class="event__type-icon" width="42" height="42" src="img/icons/${offers.type}.png" alt="Event type icon">
+              </div>
+              <h3 class="event__title">${offers.type} to ${destination.name}</h3>
+              <div class="event__schedule">
+                <p class="event__time">
+                  <time class="event__start-time" datetime="${dateFrom}">${timeFrom}</time>
+                  &mdash;
+                  <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
+                </p>
+                <p class="event__duration">30M</p>
+              </div>
+      
+              <p class="event__price">
+                &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
+              </p>
+              <h4 class="visually-hidden">Offers:</h4>
+              <ul class="event__selected-offers">
+                ${offersList}
+              </ul>
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
+        </div>
+      </li>`
+    }).join('\n');
+  };
+
+class TripDayEvents extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_0__.default {
+    constructor(events) {
+        super()
+        this._events = events;
+    }
+
+    getTemplate() {
+       return createTripEventMarkup(this._events);
+    }
+}
+
+/***/ }),
+
 /***/ "./src/components/tripDay.js":
 /*!***********************************!*\
   !*** ./src/components/tripDay.js ***!
@@ -357,13 +491,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ TripDay)
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
-/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
-/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+/* harmony import */ var _trip_event_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./trip-event.js */ "./src/components/trip-event.js");
 
 
 
 
-const createOffersMarkup = (offers) => {
+
+/* const createOffersMarkup = (offers) => {
   return offers.offers.map((offer) => {
     return `<li class="event__offer">
       <span class="event__offer-title">${offer.title}</span>
@@ -378,8 +513,8 @@ const createOffersMarkup = (offers) => {
 const createTripEventMarkup = (item) => {
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = item;
 
-  const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
-  const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
+  const timeFrom = formatTime(dateFrom);
+  const timeTo = formatTime(dateTo);
   const offersList = createOffersMarkup(offers);
   return `<li class="trip-events__item">
       <div class="event">
@@ -412,7 +547,7 @@ const createTripEventMarkup = (item) => {
   </div>
 </li>
   `
-};
+}; */
 
 const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
@@ -421,9 +556,9 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
   const dayOfTravel = dateFrom.getDate();
 
-  const events = eventsByDate.map((tripEvent) => {
-    return createTripEventMarkup(tripEvent)
-  }).join('\n')
+  const events = new _trip_event_js__WEBPACK_IMPORTED_MODULE_2__.default(eventsByDate).getElement();
+
+  console.log(events.innerHTML)
     
     return `<li class="trip-days__item  day">
         <div class="day__info"><span class="day__counter">${counterOfDay}</span>
@@ -434,16 +569,16 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
       </li>`
 };
 
-class TripDay extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
+class TripDay extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
   constructor(eventsByDate, counterOfDay) {
     super();
-    this._eventsDays = eventsByDate;
+    this._eventsGroupByDays = eventsByDate
     this._counterOfDay = counterOfDay;
     this._element = null
   }
 
   getTemplate() {
-    return createTripDayTemplate(this._eventsDays, this._counterOfDay);
+    return createTripDayTemplate(this._eventsGroupByDays, this._counterOfDay);
   }
 
   setEditButtonClickHandler(handler) {
@@ -500,39 +635,6 @@ class Filters extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defaul
     }
 };
 
-
-
-/***/ }),
-
-/***/ "./src/components/tripInfo.js":
-/*!************************************!*\
-  !*** ./src/components/tripInfo.js ***!
-  \************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ TripInfo)
-/* harmony export */ });
-const createTripInfoTemplate = () => {
-    return `
-        <div class="trip-info__main">
-            <h1 class="trip-info__title">Amsterdam &mdash; Chamonix &mdash; Geneva</h1>
-
-            <p class="trip-info__dates">Mar 18&nbsp;&mdash;&nbsp;20</p>
-        </div>
-
-        <p class="trip-info__cost">
-            Total: &euro;&nbsp;<span class="trip-info__cost-value">1230</span>
-        </p>
-    `
-};
-
-class TripInfo {
-    getTemplate() {
-      return createTripInfoTemplate();
-    }
-};
 
 
 /***/ }),
@@ -979,20 +1081,12 @@ var __webpack_exports__ = {};
   !*** ./src/main.js ***!
   \*********************/
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_tripDay_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/tripDay.js */ "./src/components/tripDay.js");
-/* harmony import */ var _components_tripInfo_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/tripInfo.js */ "./src/components/tripInfo.js");
-/* harmony import */ var _components_menu_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/menu.js */ "./src/components/menu.js");
-/* harmony import */ var _components_form_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/form.js */ "./src/components/form.js");
-/* harmony import */ var _components_sort_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/sort.js */ "./src/components/sort.js");
-/* harmony import */ var _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/tripFilters.js */ "./src/components/tripFilters.js");
-/* harmony import */ var _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/trip-days-list.js */ "./src/components/trip-days-list.js");
-/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
-/* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
-/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
-/* harmony import */ var _components_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./components/trip-days-list-contoller.js */ "./src/components/trip-days-list-contoller.js");
-
-
-
+/* harmony import */ var _components_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/trip-days-list-contoller.js */ "./src/components/trip-days-list-contoller.js");
+/* harmony import */ var _components_menu_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/menu.js */ "./src/components/menu.js");
+/* harmony import */ var _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/tripFilters.js */ "./src/components/tripFilters.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
+/* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
 
 
 
@@ -1009,63 +1103,18 @@ const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
 
 
+
 const COUNT_EVENTS = 10;
-let counterOfDays = 1;
-const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_8__.generateEvents)(COUNT_EVENTS);
+const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_4__.generateEvents)(COUNT_EVENTS);
 
-const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_9__.sortDatesAscending)(events);
-const groupOfEventsByDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(sortedEvents);
+const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_5__.sortDatesAscending)(events);
+const groupOfEventsByDays = (0,_util_js__WEBPACK_IMPORTED_MODULE_5__.groupByDays)(sortedEvents);
 
+(0,_render_js__WEBPACK_IMPORTED_MODULE_3__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_1__.default(), _render_js__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.AFTERBEGIN);
+(0,_render_js__WEBPACK_IMPORTED_MODULE_3__.render)(tripControls, new _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.default(), _render_js__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
 
-(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_2__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.AFTERBEGIN);
-(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripControls, new _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_5__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
-
-const renderEventDays = (groupOfEventsByDays, date, tripList) => {
-    const clickOnEditFormBtn = () => {
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(editForm, tripDayComponent);
-    };
-
-    const clickOnSaveFormBtn = (evt) => {
-        evt.preventDefault();
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(tripDayComponent, editForm);
-    };
-    const tripDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_0__.default(groupOfEventsByDays[date], counterOfDays);
-/*     const editBtns = tripDayComponent.getElement().querySelectorAll('.event__rollup-btn'); */
-
-    const editForm = new _components_form_js__WEBPACK_IMPORTED_MODULE_3__.default(groupOfEventsByDays[date]);
-/*     const saveFormBtns = editForm.getElement().querySelectorAll('.event__save-btn'); */
-
-/*     editBtns.forEach((btn) => {
-        btn.addEventListener('click', clickOnEditFormBtn);
-    }) */
-    tripDayComponent.setEditButtonClickHandler(() => {
-        clickOnEditFormBtn();
-    })
-    editForm.setSaveBtnClickHandler((evt) => {
-        evt.preventDefault();
-        clickOnSaveFormBtn(evt);
-    })
-/*     saveFormBtns.forEach((btn) => {
-        btn.addEventListener('click', clickOnSaveFormBtn);
-    }) */
-
-    ;(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
-    counterOfDays++
-};
-
-(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_sort_js__WEBPACK_IMPORTED_MODULE_4__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
-(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
-
-const tripList = document.querySelector('.trip-days');
-
-const tripDays = Object.keys(groupOfEventsByDays);
-
-tripDays.forEach((date) => {
-    renderEventDays(groupOfEventsByDays, date, tripList);
-});
-
-/* const tripDaysList = new TripListController(tripList)
-tripDaysList.render(groupOfEventsByDays, date, tripList); */
+const tripDaysList = new _components_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_0__.default(tripEvents)
+tripDaysList.render(groupOfEventsByDays);
 
 
 
