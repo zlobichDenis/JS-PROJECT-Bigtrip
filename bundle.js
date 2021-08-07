@@ -2,6 +2,47 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/components/abstract-component.js":
+/*!**********************************************!*\
+  !*** ./src/components/abstract-component.js ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ AbstractComponent)
+/* harmony export */ });
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+
+
+class AbstractComponent {
+    constructor() {
+        if(new.target === AbstractComponent) {
+            throw new Error(`Can't instance AbstractComponent, only concrete one.`);
+        }
+        this._element = null;
+    }
+
+    getTemplate() {
+        throw new Error ('Abstract method not implemented: getTemplate');
+    }
+
+    getElement() {
+        if(!this._element) {
+            this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
+        }
+
+        return this._element;
+    }
+
+    removeElement() {
+        this._element = null;
+    }
+}
+
+
+/***/ }),
+
 /***/ "./src/components/form.js":
 /*!********************************!*\
   !*** ./src/components/form.js ***!
@@ -343,6 +384,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
+/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+
 
 
 
@@ -418,7 +461,7 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
       </li>`
 };
 
-class TripDay {
+class TripDay extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
   constructor(eventsByDate, counterOfDay) {
     this._eventsDays = eventsByDate;
     this._counterOfDay = counterOfDay;
@@ -429,17 +472,6 @@ class TripDay {
     return createTripDayTemplate(this._eventsDays, this._counterOfDay);
   }
 
-  getElement() {
-    if(!this._element) {
-      return this._element = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.createElement)(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 };
 
 
