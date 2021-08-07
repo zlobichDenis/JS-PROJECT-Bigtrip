@@ -394,7 +394,7 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
   const firstDay = eventsByDate[0];
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
-  const dayOfTravel = dateFrom.getDay();
+  const dayOfTravel = dateFrom.getDate();
 
   const events = eventsByDate.map((tripEvent) => {
     return createTripEventMarkup(tripEvent)
@@ -839,13 +839,14 @@ const getRandomArrayElem = (array) => {
     return array[getRandomIntNumber(0, array.length - 1)];
 };
 
+
 const getRandomDate = () => {
     const targetDate = new Date;
     const sign = Math.random() > 0.5 ? 1 : -1;
     const diffValue = sign * getRandomIntNumber(1, 8);
 
     targetDate.setDate(targetDate.getDate() + diffValue);
-
+    
     return targetDate
 };
 
@@ -884,7 +885,7 @@ const getDatesOfEventDays = (events) => {
     });
     
     const setDate = new Set(datesOfEvents);
-
+    console.log(setDate)
     return setDate;
 };
 
@@ -1005,9 +1006,10 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
         evt.preventDefault();
         (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.replace)(tripDayComponent, editForm);
     };
-
     const tripDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_0__.default(groupOfEventsByDays[date], counterOfDays);
     const editBtns = tripDayComponent.getElement().querySelectorAll('.event__rollup-btn');
+    console.log(groupOfEventsByDays)
+/*     console.log(groupOfEventsByDays[date]); */
 
     const editForm = new _components_form_js__WEBPACK_IMPORTED_MODULE_3__.default(groupOfEventsByDays[date]);
     const saveFormBtns = editForm.getElement().querySelectorAll('.event__save-btn');
@@ -1023,13 +1025,15 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
     counterOfDays++
 };
 
-const renderTripEventsList = (groupOfEventsByDays, eventDays, counterOfDays) => {
+const renderTripEventsList = (groupOfEventsByDays, eventDays) => {
     (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_sort_js__WEBPACK_IMPORTED_MODULE_4__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
     (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripEvents, new _components_trip_days_list_js__WEBPACK_IMPORTED_MODULE_6__.default(), _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
 
     const tripList = document.querySelector('.trip-days');
 
-    eventDays.forEach((date) => {
+    const tripDays = Object.keys(groupOfEventsByDays);
+
+    tripDays.forEach((date) => {
         renderEventDays(groupOfEventsByDays, date, tripList);
     });
 
