@@ -316,7 +316,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _tripFilters__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tripFilters */ "./src/components/tripFilters.js");
 /* harmony import */ var _tripDay_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./tripDay.js */ "./src/components/tripDay.js");
 /* harmony import */ var _form_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./form.js */ "./src/components/form.js");
-/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../render.js */ "./src/render.js");
+/* harmony import */ var _trip_event__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./trip-event */ "./src/components/trip-event.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../render.js */ "./src/render.js");
+
+
 
 
 
@@ -327,6 +330,11 @@ __webpack_require__.r(__webpack_exports__);
 
 
 let counterOfDays = 1;
+
+const addEventsInDay = () => {
+
+};
+
 const renderEventDays = (groupOfEventsByDays, date, tripList) => {
 
     const clickOnEditFormBtn = () => {
@@ -338,6 +346,7 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
         replace(tripDayComponent, editForm);
     };
 
+    
     const tripDayComponent = new _tripDay_js__WEBPACK_IMPORTED_MODULE_4__.default(groupOfEventsByDays[date], counterOfDays);
     const editForm = new _form_js__WEBPACK_IMPORTED_MODULE_5__.default(groupOfEventsByDays[date]);
 
@@ -349,7 +358,10 @@ const renderEventDays = (groupOfEventsByDays, date, tripList) => {
         clickOnSaveFormBtn(evt);
     })
 
-    ;(0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
+    ;(0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(tripList, tripDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+
+    const tripDayEvents = new _trip_event__WEBPACK_IMPORTED_MODULE_6__.default(groupOfEventsByDays[date]);
+
     counterOfDays++
 };
 
@@ -364,8 +376,8 @@ class TripListController {
 
     render(groupOfEventsByDays) {
 
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_6__.render)(this._container, this._tripList, _render_js__WEBPACK_IMPORTED_MODULE_6__.RenderPosition.BEFOREEND);
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_7__.render)(this._container, this._tripList, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.BEFOREEND);
 
         const tripDays = Object.keys(groupOfEventsByDays);
 
@@ -470,7 +482,7 @@ const createOffersMarkup = (offers) => {
 
 class TripDayEvents extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_0__.default {
     constructor(events) {
-        super()
+        super();
         this._events = events;
     }
 
@@ -556,16 +568,14 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
   const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
   const dayOfTravel = dateFrom.getDate();
-
-  const events = new _trip_event_js__WEBPACK_IMPORTED_MODULE_2__.default(eventsByDate).getElement();
-
-  console.log(events.innerHTML)
     
     return `<li class="trip-days__item  day">
-        <div class="day__info"><span class="day__counter">${counterOfDay}</span>
-        <time class="day__date" datetime="2019-03-18">${monthOfTravel} ${dayOfTravel}</time></div>
+        <div class="day__info">
+          <span class="day__counter">${counterOfDay}</span>
+          <time class="day__date" datetime="2019-03-18">${monthOfTravel} ${dayOfTravel}</time>
+        </div>
         <ul class="trip-events__list">
-          ${events}
+          
         </ul>
       </li>`
 };
@@ -1102,8 +1112,6 @@ __webpack_require__.r(__webpack_exports__);
 // Variables
 const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
-
-
 
 const COUNT_EVENTS = 10;
 const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_4__.generateEvents)(COUNT_EVENTS);
