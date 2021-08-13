@@ -9,7 +9,7 @@ import TripEventsList from "../components/trip-events-list";
 
 import { render, RenderPosition, replace } from "../render.js";
 import { groupByDays } from "../util";
-import EventController from "./point-controller";
+import EventController from "./event-controller";
 
 
 const renderEvents = (tripEvents, container) => {

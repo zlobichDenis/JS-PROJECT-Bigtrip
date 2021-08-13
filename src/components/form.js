@@ -157,8 +157,7 @@ export default class EditForm extends AbstractComponent {
 
   setFavoritesButton() {
     this.getElement().querySelector('.event__favorite-btn').addEventListener('click', () => {
-      this._isFavorite = this._tripEvent.isFavorite;
-      this._isFavorite = !this._tripEvent;
+      this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite}))
     });
   }
 };
