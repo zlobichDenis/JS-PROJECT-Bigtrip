@@ -1,9 +1,9 @@
 import TripDay from "../components/tripDay";
 import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
-import { render, RenderPosition } from "../render";
+import { render, RenderPosition, replace } from "../render";
 
-export default class PointController {
+export default class EventController {
     constructor() {
 
     }

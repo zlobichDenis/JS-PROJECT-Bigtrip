@@ -9,7 +9,7 @@ import TripEventsList from "../components/trip-events-list";
 
 import { render, RenderPosition, replace } from "../render.js";
 import { groupByDays } from "../util";
-import PointController from "./point-controller";
+import EventController from "./point-controller";
 
 
 const renderEvents = (tripEvents, container) => {
@@ -19,12 +19,13 @@ const renderEvents = (tripEvents, container) => {
     const eventsListComponent = new TripEventsList();
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
-    const pointController = new PointController();
+    const pointController = new EventController();
     pointController.render(tripEvents, eventsListComponent)
 };
 
 export default class TripListController {
     constructor(container) {
+        
         this._container = container;
         this._menu = new TripMenu();
         this._tripDaysList = new TripList();

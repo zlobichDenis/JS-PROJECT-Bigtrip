@@ -181,6 +181,14 @@ const createEditFormTemplate = (tripEvent) => {
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
       <button class="event__reset-btn" type="reset">Cancel</button>
+
+      <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? 'checked' : ''}>
+      <label class="event__favorite-btn" for="event-favorite-1">
+        <span class="visually-hidden">Add to favorite</span>
+        <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+          <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+        </svg>
+      </label>
     </header>
     ${editOffersTemplate}
   </form>`
@@ -562,7 +570,7 @@ const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'dr
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PointController)
+/* harmony export */   "default": () => (/* binding */ EventController)
 /* harmony export */ });
 /* harmony import */ var _components_tripDay__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/tripDay */ "./src/components/tripDay.js");
 /* harmony import */ var _components_form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/form */ "./src/components/form.js");
@@ -573,7 +581,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class PointController {
+class EventController {
     constructor() {
 
     }
@@ -581,10 +589,10 @@ class PointController {
     render(tripEvents, container) {
         tripEvents.forEach((tripEvent) => {
             const clickOnEditFormBtn = () => {
-                replace(tripEditForm, tripEventComponent);
+                (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
             };
             const clickOnSaveFormBtn = () => {
-                replace(tripEventComponent, tripEditForm);
+                (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEventComponent, tripEditForm);
             };
     
             const tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(tripEvent);
@@ -653,6 +661,7 @@ const renderEvents = (tripEvents, container) => {
 
 class TripListController {
     constructor(container) {
+        
         this._container = container;
         this._menu = new _components_menu__WEBPACK_IMPORTED_MODULE_0__.default();
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
