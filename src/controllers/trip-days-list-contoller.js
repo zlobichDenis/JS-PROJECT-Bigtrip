@@ -12,7 +12,7 @@ import { groupByDays } from "../util";
 import EventController from "./event-controller";
 
 
-const renderEvents = (tripEvents, container, onDataChange) => {
+const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
     const eventDayComponent = new TripDay(tripEvents);
     render(container, eventDayComponent, RenderPosition.BEFOREEND);
 
@@ -20,7 +20,7 @@ const renderEvents = (tripEvents, container, onDataChange) => {
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
     return tripEvents.map((tripEvent) => {
-        const eventController = new EventController(tripEvent, onDataChange);
+        const eventController = new EventController(tripEvent, onDataChange, onViewChange);
         eventController.render(tripEvent, eventsListComponent);
         
         return eventController;
@@ -31,11 +31,15 @@ export default class TripListController {
     constructor(container) {
 
         this._container = container;
-        this._tripEvents = []
+        this._tripEvents = [];
+        this._showedEventsControllers = [];
         this._menu = new TripMenu();
         this._tripDaysList = new TripList();
         this._sort = new TripSort();
         this._filters = new Filters();
+
+        this._onDataChange = this._onDataChange.bind(this);
+        this._onViewChange = this._onViewChange.bind(this);
     }
 
     render(sortedEvents) {
@@ -45,13 +49,13 @@ export default class TripListController {
         const eventsGroupedByDate = groupByDays(sortedEvents);
         const tripDays = Object.keys(eventsGroupedByDate);
 
+        this._tripDays = tripDays;
         this._tripEvents = eventsGroupedByDate;
 
-        const eventControllers = tripDays.map((tripDate) => {
-           return renderEvents(this._tripEvents[tripDate], this._container, this._onDataChange);
+        this._showedEventsControllers = this._tripDays.map((tripDate) => {
+           return renderEvents(this._tripEvents[tripDate], this._container, this._onDataChange, this._onViewChange);
         });
-        console.log(eventControllers)
-    }
+    };
 
     _onDataChange(eventController, oldData, newData) {
         const index = this._tripEvents.findIndex((it) => it === oldData);
@@ -64,5 +68,11 @@ export default class TripListController {
         eventController.render(this._tripEvents);
     }
 
-
+    _onViewChange() {
+        this._showedEventsControllers.forEach((day) => {
+            day.forEach((tripEvent) => {
+                tripEvent.setDefaultView(tripEvent);
+            });
+        });
+    }
 }

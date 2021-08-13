@@ -9,16 +9,22 @@ const Mode = {
 }
 
 export default class EventController {
-    constructor(tripEvent, onDataChange) {
+    constructor(tripEvent, onDataChange, onViewChange) {
         this._tripEvent = tripEvent;
 
         this._tripEventComponent = null;
         this._tripEditComponent = null;
 
         this._onDataChange = onDataChange;
+        this._onViewChange = onViewChange;
+
+        this._mode = Mode.DEFAULT;
     }
 
     render(tripEvent, container) {
+        const oldEventComponent = this._tripEventComponent;
+        const oldEventEditComponent = this._eventEditComponent;
+
         this._tripEvent = tripEvent;
         const clickOnEditFormBtn = () => {
             replace(tripEditForm, tripEventComponent);
@@ -38,7 +44,13 @@ export default class EventController {
             evt.preventDefault();
             this._replaceEditToEvent();
         });
-        render(container.getElement(), this._tripEventComponent, RenderPosition.BEFOREEND);
+
+        if(oldEventEditComponent && oldEventComponent) {
+            replace(this._tripEventComponent, oldEventComponent);
+            replace(this._tripEditComponent, oldTaskEditComponent);
+        } else {
+            render(container.getElement(), this._tripEventComponent, RenderPosition.BEFOREEND);
+        }
     }
 
     setDefaultView() {
@@ -48,6 +60,7 @@ export default class EventController {
     }
 
     _replaceEventToEdit() {
+        this._onViewChange();
         replace(this._tripEditComponent, this._tripEventComponent);
         this._mode = Mode.EDIT;
     }
