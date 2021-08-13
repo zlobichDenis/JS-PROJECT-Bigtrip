@@ -214,8 +214,7 @@ class EditForm extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defau
 
   setFavoritesButton() {
     this.getElement().querySelector('.event__favorite-btn').addEventListener('click', () => {
-      this._isFavorite = this._tripEvent.isFavorite;
-      this._isFavorite = !this._tripEvent;
+      this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite}))
     });
   }
 };
@@ -572,9 +571,9 @@ const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'dr
 
 /***/ }),
 
-/***/ "./src/controllers/point-controller.js":
+/***/ "./src/controllers/event-controller.js":
 /*!*********************************************!*\
-  !*** ./src/controllers/point-controller.js ***!
+  !*** ./src/controllers/event-controller.js ***!
   \*********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
@@ -597,7 +596,8 @@ class EventController {
     }
 
     render(tripEvents, container) {
-        tripEvents.forEach((tripEvent) => {
+        this._tripEvents = tripEvents;
+        this._tripEvents.forEach((tripEvent) => {
             const clickOnEditFormBtn = () => {
                 (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
             };
@@ -618,6 +618,17 @@ class EventController {
             });
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
         });
+    }
+
+    _onDataChange(eventController, oldData, newData) {
+        const index = this._tripEvents.findIndex((it) => it === oldData);
+
+        if (index === -1) {
+            return;
+        }
+
+        this._tripEvents = [].concat(this._tripEvents.slice(0, index), newData, this._tripEvents.slice(index + 1));
+        eventController.render(this._tripEvents);
     }
 }
 
@@ -643,7 +654,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../components/trip-events-list */ "./src/components/trip-events-list.js");
 /* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../render.js */ "./src/render.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../util */ "./src/util.js");
-/* harmony import */ var _point_controller__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./point-controller */ "./src/controllers/point-controller.js");
+/* harmony import */ var _event_controller__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./event-controller */ "./src/controllers/event-controller.js");
 
 
 
@@ -665,7 +676,7 @@ const renderEvents = (tripEvents, container) => {
     const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-    const pointController = new _point_controller__WEBPACK_IMPORTED_MODULE_10__.default();
+    const pointController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default();
     pointController.render(tripEvents, eventsListComponent)
 };
 
