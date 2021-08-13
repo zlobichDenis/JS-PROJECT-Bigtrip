@@ -1,14 +1,15 @@
-import TripMenu from "./menu";
-import TripSort from "./sort";
-import TripList from "./trip-days-list";
-import Filters from "./tripFilters";
-import TripDay from './tripDay.js'
-import EditForm from './form.js'
-import TripDayEvents from "./trip-event";
-import TripEventsList from "./trip-events-list";
+import TripMenu from "../components/menu";
+import TripSort from "../components/sort";
+import TripList from "../components/trip-days-list";
+import Filters from "../components/tripFilters";
+import TripDay from '../components/tripDay.js'
+import EditForm from '../components/form.js'
+import TripDayEvents from "../components/trip-event";
+import TripEventsList from "../components/trip-events-list";
 
 import { render, RenderPosition, replace } from "../render.js";
 import { groupByDays } from "../util";
+import PointController from "./point-controller";
 
 
 const renderEvents = (tripEvents, container) => {
@@ -18,27 +19,8 @@ const renderEvents = (tripEvents, container) => {
     const eventsListComponent = new TripEventsList();
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
-    tripEvents.forEach((tripEvent) => {
-        const clickOnEditFormBtn = () => {
-            replace(tripEditForm, tripEventComponent);
-        };
-        const clickOnSaveFormBtn = () => {
-            replace(tripEventComponent, tripEditForm);
-        };
-
-        const tripEventComponent = new TripDayEvents(tripEvent);
-        const tripEditForm = new EditForm(tripEvent);
-
-        tripEventComponent.setEditButtonClickHandler(() => {
-            clickOnEditFormBtn()
-        });
-    
-        tripEditForm.setSaveBtnClickHandler((evt) => {
-            evt.preventDefault();
-            clickOnSaveFormBtn();
-        });
-        render(eventsListComponent.getElement(), tripEventComponent, RenderPosition.BEFOREEND);
-    });
+    const pointController = new PointController();
+    pointController.render(tripEvents, eventsListComponent)
 };
 
 export default class TripListController {

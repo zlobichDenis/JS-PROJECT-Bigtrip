@@ -1,4 +1,4 @@
-import TripListController from './components/trip-days-list-contoller.js';
+import TripListController from './controllers/trip-days-list-contoller.js';
 import TripMenu from './components/menu.js';
 import Filters from './components/tripFilters.js';
 
