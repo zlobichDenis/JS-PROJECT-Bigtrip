@@ -138,10 +138,13 @@ const createEditFormTemplate = (tripEvent) => {
 };
 
 export default class EditForm extends AbstractComponent {
-  constructor(tripEvent) {
+  constructor(tripEvent, onDataChange) {
     super();
     this._tripEvent = tripEvent;
-    this._element = null
+    this._element = null;
+
+    this._isFavorite = null;
+    this._onDataChange = onDataChange;
   }
 
   getTemplate() {
@@ -150,5 +153,12 @@ export default class EditForm extends AbstractComponent {
 
   setSaveBtnClickHandler(handler) {
     this.getElement().querySelector('.event__save-btn').addEventListener('click', handler);
+  }
+
+  setFavoritesButton() {
+    this.getElement().querySelector('.event__favorite-btn').addEventListener('click', () => {
+      this._isFavorite = this._tripEvent.isFavorite;
+      this._isFavorite = !this._tripEvent;
+    });
   }
 };
