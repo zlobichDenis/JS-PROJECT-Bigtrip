@@ -64,13 +64,5 @@ export default class TripListController {
         eventController.render(this._tripEvents);
     }
 
-    setDefaultView() {
-        if (this._mode !== Mode.DEFAULT) {
-            this._replaceEditToEvent()
-        }
-    }
-
-    _replaceEventToEdit() {
-    }
 
 }

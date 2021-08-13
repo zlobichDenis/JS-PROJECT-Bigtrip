@@ -668,11 +668,14 @@ class EventController {
     constructor(tripEvent, onDataChange) {
         this._tripEvent = tripEvent;
 
+        this._tripEventComponent = null;
+        this._tripEditComponent = null;
+
         this._onDataChange = onDataChange;
     }
 
     render(tripEvent, container) {
-        this._tripEvents = tripEvent;
+        this._tripEvent = tripEvent;
         const clickOnEditFormBtn = () => {
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
         };
@@ -680,18 +683,34 @@ class EventController {
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEventComponent, tripEditForm);
         };
 
-        const tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(this._tripEvent);
-        const tripEditForm = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(this._tripEvent, this._onDataChange);
+        this._tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(this._tripEvent);
+        this._tripEditComponent = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(this._tripEvent, this._onDataChange);
 
-        tripEventComponent.setEditButtonClickHandler(() => {
-            clickOnEditFormBtn()
+        this._tripEventComponent.setEditButtonClickHandler(() => {
+            this._replaceEventToEdit();
         });
     
-        tripEditForm.setSaveBtnClickHandler((evt) => {
+        this._tripEditComponent.setSaveBtnClickHandler((evt) => {
             evt.preventDefault();
-            clickOnSaveFormBtn();
+            this._replaceEditToEvent();
         });
-        (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), this._tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
+    }
+
+    setDefaultView() {
+        if (this._mode !== Mode.DEFAULT) {
+            this._replaceEditToEvent()
+        }
+    }
+
+    _replaceEventToEdit() {
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEditComponent, this._tripEventComponent);
+        this._mode = Mode.EDIT;
+    }
+
+    _replaceEditToEvent() {
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, this._tripEditComponent);
+        this._mode = Mode.DEFAULT;
     }
 }
 
@@ -784,14 +803,6 @@ class TripListController {
         eventController.render(this._tripEvents);
     }
 
-    setDefaultView() {
-        if (this._mode !== Mode.DEFAULT) {
-            this._replaceEditToEvent()
-        }
-    }
-
-    _replaceEventToEdit() {
-    }
 
 }
 
