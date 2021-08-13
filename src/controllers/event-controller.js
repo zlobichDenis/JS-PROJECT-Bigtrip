@@ -3,44 +3,38 @@ import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace } from "../render";
 
+const Mode = {
+    DEFAULT: 'default',
+    EDIT: 'edit',
+}
+
 export default class EventController {
-    constructor() {
+    constructor(tripEvent, onDataChange) {
+        this._tripEvent = tripEvent;
 
+        this._onDataChange = onDataChange;
     }
 
-    render(tripEvents, container) {
-        this._tripEvents = tripEvents;
-        this._tripEvents.forEach((tripEvent) => {
-            const clickOnEditFormBtn = () => {
-                replace(tripEditForm, tripEventComponent);
-            };
-            const clickOnSaveFormBtn = () => {
-                replace(tripEventComponent, tripEditForm);
-            };
-    
-            const tripEventComponent = new TripDayEvents(tripEvent);
-            const tripEditForm = new EditForm(tripEvent);
-    
-            tripEventComponent.setEditButtonClickHandler(() => {
-                clickOnEditFormBtn()
-            });
-        
-            tripEditForm.setSaveBtnClickHandler((evt) => {
-                evt.preventDefault();
-                clickOnSaveFormBtn();
-            });
-            render(container.getElement(), tripEventComponent, RenderPosition.BEFOREEND);
+    render(tripEvent, container) {
+        this._tripEvent = tripEvent;
+        const clickOnEditFormBtn = () => {
+            replace(tripEditForm, tripEventComponent);
+        };
+        const clickOnSaveFormBtn = () => {
+            replace(tripEventComponent, tripEditForm);
+        };
+
+        const tripEventComponent = new TripDayEvents(this._tripEvent);
+        const tripEditForm = new EditForm(this._tripEvent, this._onDataChange);
+
+        tripEventComponent.setEditButtonClickHandler(() => {
+            clickOnEditFormBtn()
         });
-    }
-
-    _onDataChange(eventController, oldData, newData) {
-        const index = this._tripEvents.findIndex((it) => it === oldData);
-
-        if (index === -1) {
-            return;
-        }
-
-        this._tripEvents = [].concat(this._tripEvents.slice(0, index), newData, this._tripEvents.slice(index + 1));
-        eventController.render(this._tripEvents);
+    
+        tripEditForm.setSaveBtnClickHandler((evt) => {
+            evt.preventDefault();
+            clickOnSaveFormBtn();
+        });
+        render(container.getElement(), tripEventComponent, RenderPosition.BEFOREEND);
     }
 }

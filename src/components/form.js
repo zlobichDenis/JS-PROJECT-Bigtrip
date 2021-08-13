@@ -1,5 +1,7 @@
 import { MONTH_NAMES , OFFERS_TYPES} from "../const.js";
-import AbstractComponent from "./abstract-component.js";
+import { offers } from "../data.js";
+import AbstractSmartComponent from "./abstract-smart-component.js";
+
 
 const createEventTypeEditTemplate = (offerName, offerType) => {
   const isChecked = offerName === offerType ? 'checked' : '';
@@ -137,7 +139,7 @@ const createEditFormTemplate = (tripEvent) => {
   </form>`
 };
 
-export default class EditForm extends AbstractComponent {
+export default class EditForm extends AbstractSmartComponent {
   constructor(tripEvent, onDataChange) {
     super();
     this._tripEvent = tripEvent;
@@ -145,19 +147,51 @@ export default class EditForm extends AbstractComponent {
 
     this._isFavorite = null;
     this._onDataChange = onDataChange;
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
     return createEditFormTemplate(this._tripEvent);
   }
 
-  setSaveBtnClickHandler(handler) {
-    this.getElement().querySelector('.event__save-btn').addEventListener('click', handler);
+  recoveryListeners() {
+    this.setSaveBtnClickHandler(this._submitHandler);
+    this._subscribeOnEvents();
   }
 
-  setFavoritesButton() {
-    this.getElement().querySelector('.event__favorite-btn').addEventListener('click', () => {
-      this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite}))
+  rerender() {
+    super.rerender();
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+    this.onChangeEventType(element);
+    this.setFavoritesButton(element);
+  }
+
+  setSaveBtnClickHandler(handler) {
+    this.getElement().querySelector('.event__save-btn').addEventListener('click', handler);
+    this._submitHandler = handler;
+  }
+
+  setFavoritesButton(element) {
+    element.querySelector('.event__favorite-btn').addEventListener('click', () => {
+/*       this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite})) */
+      this._tripEvent.is_favorite = !this._tripEvent.is_favorite;
+      this.rerender();
+    });
+  }
+
+  onChangeEventType(element) {
+    element.querySelectorAll('.event__type-input').forEach((typeItem) => {
+      typeItem.addEventListener('click', (evt) => {
+        const eventType = evt.target.value;
+        const result = offers.findIndex((it) => it['type'] === eventType);
+        console.log(result);
+        this._tripEvent.offers = offers[result];
+        this.rerender();
+      })
     });
   }
 };

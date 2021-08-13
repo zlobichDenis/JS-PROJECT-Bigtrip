@@ -43,6 +43,40 @@ class AbstractComponent {
 
 /***/ }),
 
+/***/ "./src/components/abstract-smart-component.js":
+/*!****************************************************!*\
+  !*** ./src/components/abstract-smart-component.js ***!
+  \****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ AbstractSmartComponent)
+/* harmony export */ });
+/* harmony import */ var _abstract_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract-component */ "./src/components/abstract-component.js");
+
+
+class AbstractSmartComponent extends _abstract_component__WEBPACK_IMPORTED_MODULE_0__.default {
+    recoveryListeners() {
+        throw new Error('ОШИБКА!')
+    }
+    
+    rerender() {
+        const oldElement = this.getElement();
+        const parent = oldElement.parentElement;
+
+        this.removeElement();
+
+        const newElement = this.getElement();
+
+        parent.replaceChild(newElement, oldElement);
+
+        this.recoveryListeners();
+    }
+}
+
+/***/ }),
+
 /***/ "./src/components/form.js":
 /*!********************************!*\
   !*** ./src/components/form.js ***!
@@ -54,7 +88,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ EditForm)
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
-/* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+/* harmony import */ var _data_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../data.js */ "./src/data.js");
+/* harmony import */ var _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./abstract-smart-component.js */ "./src/components/abstract-smart-component.js");
+
+
 
 
 
@@ -194,7 +231,7 @@ const createEditFormTemplate = (tripEvent) => {
   </form>`
 };
 
-class EditForm extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
+class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
   constructor(tripEvent, onDataChange) {
     super();
     this._tripEvent = tripEvent;
@@ -202,19 +239,51 @@ class EditForm extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defau
 
     this._isFavorite = null;
     this._onDataChange = onDataChange;
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
     return createEditFormTemplate(this._tripEvent);
   }
 
-  setSaveBtnClickHandler(handler) {
-    this.getElement().querySelector('.event__save-btn').addEventListener('click', handler);
+  recoveryListeners() {
+    this.setSaveBtnClickHandler(this._submitHandler);
+    this._subscribeOnEvents();
   }
 
-  setFavoritesButton() {
-    this.getElement().querySelector('.event__favorite-btn').addEventListener('click', () => {
-      this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite}))
+  rerender() {
+    super.rerender();
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+    this.onChangeEventType(element);
+    this.setFavoritesButton(element);
+  }
+
+  setSaveBtnClickHandler(handler) {
+    this.getElement().querySelector('.event__save-btn').addEventListener('click', handler);
+    this._submitHandler = handler;
+  }
+
+  setFavoritesButton(element) {
+    element.querySelector('.event__favorite-btn').addEventListener('click', () => {
+/*       this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite})) */
+      this._tripEvent.is_favorite = !this._tripEvent.is_favorite;
+      this.rerender();
+    });
+  }
+
+  onChangeEventType(element) {
+    element.querySelectorAll('.event__type-input').forEach((typeItem) => {
+      typeItem.addEventListener('click', (evt) => {
+        const eventType = evt.target.value;
+        const result = _data_js__WEBPACK_IMPORTED_MODULE_1__.offers.findIndex((it) => it['type'] === eventType);
+        console.log(result);
+        this._tripEvent.offers = _data_js__WEBPACK_IMPORTED_MODULE_1__.offers[result];
+        this.rerender();
+      })
     });
   }
 };
@@ -590,45 +659,39 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const Mode = {
+    DEFAULT: 'default',
+    EDIT: 'edit',
+}
+
 class EventController {
-    constructor() {
+    constructor(tripEvent, onDataChange) {
+        this._tripEvent = tripEvent;
 
+        this._onDataChange = onDataChange;
     }
 
-    render(tripEvents, container) {
-        this._tripEvents = tripEvents;
-        this._tripEvents.forEach((tripEvent) => {
-            const clickOnEditFormBtn = () => {
-                (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
-            };
-            const clickOnSaveFormBtn = () => {
-                (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEventComponent, tripEditForm);
-            };
-    
-            const tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(tripEvent);
-            const tripEditForm = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(tripEvent);
-    
-            tripEventComponent.setEditButtonClickHandler(() => {
-                clickOnEditFormBtn()
-            });
-        
-            tripEditForm.setSaveBtnClickHandler((evt) => {
-                evt.preventDefault();
-                clickOnSaveFormBtn();
-            });
-            (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
+    render(tripEvent, container) {
+        this._tripEvents = tripEvent;
+        const clickOnEditFormBtn = () => {
+            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
+        };
+        const clickOnSaveFormBtn = () => {
+            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEventComponent, tripEditForm);
+        };
+
+        const tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(this._tripEvent);
+        const tripEditForm = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(this._tripEvent, this._onDataChange);
+
+        tripEventComponent.setEditButtonClickHandler(() => {
+            clickOnEditFormBtn()
         });
-    }
-
-    _onDataChange(eventController, oldData, newData) {
-        const index = this._tripEvents.findIndex((it) => it === oldData);
-
-        if (index === -1) {
-            return;
-        }
-
-        this._tripEvents = [].concat(this._tripEvents.slice(0, index), newData, this._tripEvents.slice(index + 1));
-        eventController.render(this._tripEvents);
+    
+        tripEditForm.setSaveBtnClickHandler((evt) => {
+            evt.preventDefault();
+            clickOnSaveFormBtn();
+        });
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
     }
 }
 
@@ -669,21 +732,26 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const renderEvents = (tripEvents, container) => {
+const renderEvents = (tripEvents, container, onDataChange) => {
     const eventDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_4__.default(tripEvents);
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(container, eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
     const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-    const pointController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default();
-    pointController.render(tripEvents, eventsListComponent)
+    return tripEvents.map((tripEvent) => {
+        const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(tripEvent, onDataChange);
+        eventController.render(tripEvent, eventsListComponent);
+        
+        return eventController;
+    });
 };
 
 class TripListController {
     constructor(container) {
-        
+
         this._container = container;
+        this._tripEvents = []
         this._menu = new _components_menu__WEBPACK_IMPORTED_MODULE_0__.default();
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
         this._sort = new _components_sort__WEBPACK_IMPORTED_MODULE_1__.default();
@@ -691,18 +759,40 @@ class TripListController {
     }
 
     render(sortedEvents) {
-
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
         const eventsGroupedByDate = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(sortedEvents);
         const tripDays = Object.keys(eventsGroupedByDate);
 
-        tripDays.forEach((tripDate) => {
-            renderEvents(eventsGroupedByDate[tripDate], this._container);
-        });
+        this._tripEvents = eventsGroupedByDate;
 
+        const eventControllers = tripDays.map((tripDate) => {
+           return renderEvents(this._tripEvents[tripDate], this._container, this._onDataChange);
+        });
+        console.log(eventControllers)
     }
+
+    _onDataChange(eventController, oldData, newData) {
+        const index = this._tripEvents.findIndex((it) => it === oldData);
+
+        if (index === -1) {
+            return;
+        }
+
+        this._tripEvents = [].concat(this._tripEvents.slice(0, index), newData, this._tripEvents.slice(index + 1));
+        eventController.render(this._tripEvents);
+    }
+
+    setDefaultView() {
+        if (this._mode !== Mode.DEFAULT) {
+            this._replaceEditToEvent()
+        }
+    }
+
+    _replaceEventToEdit() {
+    }
+
 }
 
 /***/ }),
