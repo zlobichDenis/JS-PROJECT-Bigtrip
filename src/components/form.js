@@ -37,8 +37,8 @@ const createEditTimeTemplate = (timeFrom, timeTo) => {
 const createOneEditOfferTemplate = (offer) => {
 
   return `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-  <label class="event__offer-label" for="event-offer-seats-1">
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}">
+  <label class="event__offer-label" for="event-offer-${offer.title}-1">
     <span class="event__offer-title">${offer.title}</span>
     &plus;
     &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
@@ -157,22 +157,7 @@ export default class EditForm extends AbstractSmartComponent {
     this._subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
-  }
-
-  _applyFlatpickr() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
-    }
-
-    const dateElements = this.getElement().querySelectorAll('.event__input--time')
-    .forEach((dateElement => {
-      this._flatpickr = flatpickr(dateElement, {
-        altInput: true,
-        allowInput: true,
-        defaultDate: this._tripEvent.date_from,
-      });
-    }));
+    this.rerender()
   }
 
   getTemplate() {
@@ -187,6 +172,23 @@ export default class EditForm extends AbstractSmartComponent {
 
   rerender() {
     super.rerender();
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const dateElements = this.getElement().querySelectorAll('.event__input--time')
+    .forEach((dateElement => {
+      this._flatpickr = flatpickr(dateElement, {
+        altInput: true,
+        allowInput: true,
+        defaultDate: this._tripEvent.date_from,
+        maxDate: this._tripEvent.date_to,
+      });
+    }));
   }
 
   _subscribeOnEvents() {

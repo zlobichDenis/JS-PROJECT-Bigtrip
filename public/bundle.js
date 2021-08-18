@@ -9067,8 +9067,8 @@ const createEditTimeTemplate = (timeFrom, timeTo) => {
 const createOneEditOfferTemplate = (offer) => {
 
   return `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-seats-1" type="checkbox" name="event-offer-seats">
-  <label class="event__offer-label" for="event-offer-seats-1">
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}">
+  <label class="event__offer-label" for="event-offer-${offer.title}-1">
     <span class="event__offer-title">${offer.title}</span>
     &plus;
     &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
@@ -9093,8 +9093,6 @@ const createEditOffersTemplate = (offers) => {
 
 const createEditFormTemplate = (tripEvent) => {
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
-  const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
-  const dayOfTravel = dateFrom.getDay();
 
   const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_4__.formatDate)(dateFrom);
   const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_4__.formatDate)(dateTo);
@@ -9189,22 +9187,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     this._subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
-  }
-
-  _applyFlatpickr() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
-    }
-
-    const dateElements = this.getElement().querySelectorAll('.event__input--time')
-    .forEach((dateElement => {
-      this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateElement, {
-        altInput: true,
-        allowInput: true,
-        defaultDate: this._tripEvent.date_from,
-      })
-    }));
+    this.rerender()
   }
 
   getTemplate() {
@@ -9219,6 +9202,23 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
   rerender() {
     super.rerender();
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const dateElements = this.getElement().querySelectorAll('.event__input--time')
+    .forEach((dateElement => {
+      this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateElement, {
+        altInput: true,
+        allowInput: true,
+        defaultDate: this._tripEvent.date_from,
+        maxDate: this._tripEvent.date_to,
+      });
+    }));
   }
 
   _subscribeOnEvents() {
