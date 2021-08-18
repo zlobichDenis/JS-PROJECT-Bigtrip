@@ -5,6 +5,7 @@ import flatpickr from "flatpickr";
 import { formatTime, formatDate } from "../util.js";
 import 'flatpickr/dist/flatpickr.min.css';
 
+const eventsCounter = 1;
 
 const createDestinationOptionTemplate = (name) => {
   return `<option value="${name}"></option>`
@@ -76,7 +77,7 @@ const createEditFormTemplate = (tripEvent) => {
     return createEventTypeEditTemplate(offerName, offers.type);
   }).join('\n');
 
-    return `<form class="trip-events__item  event  event--edit" action="#" method="post">
+    return (`<form class="trip-events__item  event  event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -142,7 +143,7 @@ const createEditFormTemplate = (tripEvent) => {
       </label>
     </header>
     ${editOffersTemplate}
-  </form>`
+  </form>`)
 };
 
 export default class EditForm extends AbstractSmartComponent {
@@ -157,7 +158,6 @@ export default class EditForm extends AbstractSmartComponent {
     this._subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
-    this.rerender()
   }
 
   getTemplate() {
@@ -172,6 +172,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   _applyFlatpickr() {
@@ -180,15 +181,24 @@ export default class EditForm extends AbstractSmartComponent {
       this._flatpickr = null;
     }
 
-    const dateElements = this.getElement().querySelectorAll('.event__input--time')
-    .forEach((dateElement => {
-      this._flatpickr = flatpickr(dateElement, {
-        altInput: true,
-        allowInput: true,
-        defaultDate: this._tripEvent.date_from,
-        maxDate: this._tripEvent.date_to,
-      });
-    }));
+    const dateFromElement = this.getElement().querySelector('#event-start-time-1');
+    this._flatpickr = flatpickr(dateFromElement, {
+/*       altInput: true, */
+      allowInput: true,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      defaultDate: this._tripEvent.date_from,
+      maxDate: this._tripEvent.date_to,
+    });
+
+    const dateToElement = this.getElement().querySelector('#event-end-time-1');
+    this._flatpickr = flatpickr(dateToElement, {
+/*       altInput: true, */
+      allowInput: true,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      defaultDate: this._tripEvent.date_to,
+    });
   }
 
   _subscribeOnEvents() {

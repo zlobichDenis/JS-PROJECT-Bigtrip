@@ -9035,6 +9035,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const eventsCounter = 1;
 
 const createDestinationOptionTemplate = (name) => {
   return `<option value="${name}"></option>`
@@ -9106,7 +9107,7 @@ const createEditFormTemplate = (tripEvent) => {
     return createEventTypeEditTemplate(offerName, offers.type);
   }).join('\n');
 
-    return `<form class="trip-events__item  event  event--edit" action="#" method="post">
+    return (`<form class="trip-events__item  event  event--edit" action="#" method="post">
     <header class="event__header">
       <div class="event__type-wrapper">
         <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -9172,7 +9173,7 @@ const createEditFormTemplate = (tripEvent) => {
       </label>
     </header>
     ${editOffersTemplate}
-  </form>`
+  </form>`)
 };
 
 class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__.default {
@@ -9187,7 +9188,6 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     this._subscribeOnEvents();
     this._flatpickr = null;
     this._applyFlatpickr();
-    this.rerender()
   }
 
   getTemplate() {
@@ -9202,6 +9202,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   _applyFlatpickr() {
@@ -9210,15 +9211,24 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
       this._flatpickr = null;
     }
 
-    const dateElements = this.getElement().querySelectorAll('.event__input--time')
-    .forEach((dateElement => {
-      this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateElement, {
-        altInput: true,
-        allowInput: true,
-        defaultDate: this._tripEvent.date_from,
-        maxDate: this._tripEvent.date_to,
-      });
-    }));
+    const dateFromElement = this.getElement().querySelector('#event-start-time-1');
+    this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
+/*       altInput: true, */
+      allowInput: true,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      defaultDate: this._tripEvent.date_from,
+      maxDate: this._tripEvent.date_to,
+    });
+
+    const dateToElement = this.getElement().querySelector('#event-end-time-1');
+    this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
+/*       altInput: true, */
+      allowInput: true,
+      enableTime: true,
+      dateFormat: 'd/m/Y H:i',
+      defaultDate: this._tripEvent.date_to,
+    });
   }
 
   _subscribeOnEvents() {
