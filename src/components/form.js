@@ -1,7 +1,14 @@
 import { MONTH_NAMES , OFFERS_TYPES} from "../const.js";
-import { offers } from "../data.js";
+import { offers, pointsOfDestination } from "../data.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
+import flatpickr from "flatpickr";
+import { formatTime, formatDate } from "../util.js";
+import 'flatpickr/dist/flatpickr.min.css';
 
+
+const createDestinationOptionTemplate = (name) => {
+  return `<option value="${name}"></option>`
+}
 
 const createEventTypeEditTemplate = (offerName, offerType) => {
   const isChecked = offerName === offerType ? 'checked' : '';
@@ -12,18 +19,18 @@ const createEventTypeEditTemplate = (offerName, offerType) => {
 </div>`
 };
 
-const createEditTimeTemplate = (dateFrom, dateTo) => {
+const createEditTimeTemplate = (timeFrom, timeTo) => {
 
  return `<div class="event__field-group  event__field-group--time">
  <label class="visually-hidden" for="event-start-time-1">
    From
  </label>
- <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateFrom}">
+ <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${timeFrom}">
  &mdash;
  <label class="visually-hidden" for="event-end-time-1">
    To
  </label>
- <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateTo}">
+ <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${timeTo}">
 </div>`
 };
 
@@ -56,11 +63,15 @@ const createEditOffersTemplate = (offers) => {
 
 const createEditFormTemplate = (tripEvent) => {
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
-  const monthOfTravel = MONTH_NAMES[dateFrom.getMonth()];
-  const dayOfTravel = dateFrom.getDay();
 
+  const timeFrom = formatDate(dateFrom);
+  const timeTo = formatDate(dateTo);
+
+  const destinationOption = pointsOfDestination.map((point) => {
+    return createDestinationOptionTemplate(point.name);
+  }).join('\n');
   const editOffersTemplate = createEditOffersTemplate(offers.offers);
-  const editTimeTemplate= createEditTimeTemplate(dateFrom, dateTo);
+  const editTimeTemplate= createEditTimeTemplate(timeFrom, timeTo);
   const eventTypeEditTemplate = OFFERS_TYPES.map((offerName) =>{
     return createEventTypeEditTemplate(offerName, offers.type);
   }).join('\n');
@@ -103,19 +114,14 @@ const createEditFormTemplate = (tripEvent) => {
 
       <div class="event__field-group  event__field-group--destination">
         <label class="event__label  event__type-output" for="event-destination-1">
-          ${offers.type} to ${destination.name}
+          ${offers.type} to 
         </label>
         <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" list="destination-list-1">
         <datalist id="destination-list-1">
-          <option value="Amsterdam"></option>
-          <option value="Geneva"></option>
-          <option value="Chamonix"></option>
-          <option value="Saint Petersburg"></option>
+          ${destinationOption}
         </datalist>
       </div>
-
       ${editTimeTemplate}
-
       <div class="event__field-group  event__field-group--price">
         <label class="event__label" for="event-price-1">
           <span class="visually-hidden">Price</span>
@@ -149,11 +155,30 @@ export default class EditForm extends AbstractSmartComponent {
     this._onDataChange = onDataChange;
 
     this._subscribeOnEvents();
+    this._flatpickr = null;
+    this._applyFlatpickr();
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+
+    const dateElements = this.getElement().querySelectorAll('.event__input--time')
+    .forEach((dateElement => {
+      this._flatpickr = flatpickr(dateElement, {
+        altInput: true,
+        allowInput: true,
+        defaultDate: this._tripEvent.date_from,
+      });
+    }));
   }
 
   getTemplate() {
     return createEditFormTemplate(this._tripEvent);
   }
+
 
   recoveryListeners() {
     this.setSaveBtnClickHandler(this._submitHandler);
@@ -188,7 +213,6 @@ export default class EditForm extends AbstractSmartComponent {
       typeItem.addEventListener('click', (evt) => {
         const eventType = evt.target.value;
         const result = offers.findIndex((it) => it['type'] === eventType);
-        console.log(result);
         this._tripEvent.offers = offers[result];
         this.rerender();
       })
