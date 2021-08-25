@@ -3,7 +3,7 @@ import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace } from "../render";
 
-const Mode = {
+export const Mode = {
     DEFAULT: 'default',
     EDIT: 'edit',
 }
@@ -21,10 +21,11 @@ export default class EventController {
         this._mode = Mode.DEFAULT;
     }
 
-    render(tripEvent, container) {
+    render(tripEvent, container, mode) {
         const oldEventComponent = this._tripEventComponent;
         const oldEventEditComponent = this._eventEditComponent;
 
+        this._mode = mode;
         this._tripEvent = tripEvent;
 
         this._tripEventComponent = new TripDayEvents(this._tripEvent);

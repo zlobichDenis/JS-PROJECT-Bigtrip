@@ -10,7 +10,7 @@ const generateEvent = (item) => {
         "date_from": getRandomDate(), // функция для определения
         "date_to": getRandomDate(),
         "destination": destination, // Массив состоящий из все точек путешествий
-        "id": "0", // Счетчик i
+        "id": String(new Date() + Math.random), // Счетчик i
         "is_favorite": Math.random() > 0.5,
         "offers": offer, // Массив состоящий из всех офферов каждого ивента
     }

@@ -9,7 +9,7 @@ import TripEventsList from "../components/trip-events-list";
 
 import { render, RenderPosition, replace } from "../render.js";
 import { groupByDays } from "../util";
-import EventController from "./event-controller";
+import EventController, {Mode} from "./event-controller";
 
 
 const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
@@ -21,17 +21,19 @@ const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
 
     return tripEvents.map((tripEvent) => {
         const eventController = new EventController(tripEvent, onDataChange, onViewChange);
-        eventController.render(tripEvent, eventsListComponent);
+        eventController.render(tripEvent, eventsListComponent, Mode.DEFAULT);
         
         return eventController;
     });
 };
 
 export default class TripListController {
-    constructor(container) {
+    constructor(container, eventsModel) {
 
         this._container = container;
         this._tripEvents = [];
+
+        this._eventsModel = eventsModel;
         this._showedEventsControllers = [];
         this._menu = new TripMenu();
         this._tripDaysList = new TripList();
@@ -42,11 +44,11 @@ export default class TripListController {
         this._onViewChange = this._onViewChange.bind(this);
     }
 
-    render(sortedEvents) {
+    render() {
         render(this._container, this._sort, RenderPosition.BEFOREEND);
         render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
 
-        const eventsGroupedByDate = groupByDays(sortedEvents);
+        const eventsGroupedByDate = groupByDays(this._eventsModel.getEvents());
         const tripDays = Object.keys(eventsGroupedByDate);
 
         this._tripDays = tripDays;
@@ -58,14 +60,11 @@ export default class TripListController {
     };
 
     _onDataChange(eventController, oldData, newData) {
-        const index = this._tripEvents.findIndex((it) => it === oldData);
-
-        if (index === -1) {
-            return;
+        const isSucces = this._eventsModel(oldData.id, newData.id);
+        const container = new TripEventsList.getElement();
+        if (isSucces) {
+            eventController.render(newData, container, Mode.DEFAULT);
         }
-
-        this._tripEvents = [].concat(this._tripEvents.slice(0, index), newData, this._tripEvents.slice(index + 1));
-        eventController.render(this._tripEvents);
     }
 
     _onViewChange() {

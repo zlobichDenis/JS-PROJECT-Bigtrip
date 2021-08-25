@@ -1,6 +1,7 @@
 import TripListController from './controllers/trip-days-list-contoller.js';
 import TripMenu from './components/menu.js';
 import Filters from './components/tripFilters.js';
+import EventsModel from './models/events.js';
 
 
 import { render, RenderPosition, replace } from './render.js';
@@ -14,15 +15,17 @@ const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
 
 const COUNT_EVENTS = 10;
-
 const events = generateEvents(COUNT_EVENTS);
 const sortedEvents = sortDatesAscending(events);
+
+const eventsModel = new EventsModel();
+eventsModel.setEvents(sortedEvents);
 
 render(tripControls, new TripMenu(), RenderPosition.AFTERBEGIN);
 render(tripControls, new Filters(), RenderPosition.BEFOREEND);
 
-const tripDaysList = new TripListController(tripEvents)
-tripDaysList.render(sortedEvents);
+const tripDaysList = new TripListController(tripEvents, eventsModel);
+tripDaysList.render();
 
 
 
