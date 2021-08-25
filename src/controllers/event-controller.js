@@ -26,12 +26,6 @@ export default class EventController {
         const oldEventEditComponent = this._eventEditComponent;
 
         this._tripEvent = tripEvent;
-        const clickOnEditFormBtn = () => {
-            replace(tripEditForm, tripEventComponent);
-        };
-        const clickOnSaveFormBtn = () => {
-            replace(tripEventComponent, tripEditForm);
-        };
 
         this._tripEventComponent = new TripDayEvents(this._tripEvent);
         this._tripEditComponent = new EditForm(this._tripEvent, this._onDataChange);

@@ -9665,12 +9665,6 @@ class EventController {
         const oldEventEditComponent = this._eventEditComponent;
 
         this._tripEvent = tripEvent;
-        const clickOnEditFormBtn = () => {
-            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEditForm, tripEventComponent);
-        };
-        const clickOnSaveFormBtn = () => {
-            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(tripEventComponent, tripEditForm);
-        };
 
         this._tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(this._tripEvent);
         this._tripEditComponent = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(this._tripEvent, this._onDataChange);
