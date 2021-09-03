@@ -23,9 +23,22 @@ const createTripFiltersTemplate = () => {
     `
 };
 
-export default class Filters extends AbstractComponent {
+export default class FiltersComponent extends AbstractComponent {
     getTemplate() {
       return createTripFiltersTemplate();
     }
+
+   setActiveEveryFilter(handler) {
+       this.getElement().querySelector('#filter-everything').addEventListener('click', handler);
+   }
+
+   setActiveFutureFilter(handler) {
+       this.getElement().querySelector('#filter-future').addEventListener('click', handler);
+   }
+
+   setActivePastFilter(handler) {
+       this.getElement().querySelector('#filter-past').addEventListener('click', handler);
+   }
+    
 };
 

@@ -1,4 +1,6 @@
 import { generateEvents } from "../mock/events";
+import { generateEventsByFilter } from "../util";
+import { FilterType } from "../const.js";
 
 
 export default class EventsModel {
@@ -6,10 +8,22 @@ export default class EventsModel {
         this._events = [];
 
         this._dataChangeHandlers = [];
+        this._filterChangeHandlers = [];
+        
+        this.activeFilter = FilterType.EVERY;
     }
 
-    getEvents() {
+    getAllEvents() {
         return this._events;
+    }
+
+    getEventsByFilter() {
+        return generateEventsByFilter(this._events, this.activeFilter);
+    }
+
+    setFilterType(activeFilter) {
+        this.activeFilter = activeFilter;
+        this._callHandlers(this._filterChangeHandlers);
     }
 
     setEvents(events) {
@@ -33,7 +47,11 @@ export default class EventsModel {
         this._dataChangeHandlers.push(handler);
     }
 
-    _callHandlers() {
-        this._dataChangeHandlers.forEach((handler) => handler());
+    _setFilterChangeHandlers(handler) {
+        this._filterChangeHandlers.push(handler);
+    }
+
+    _callHandlers(handlers) {
+        handlers.forEach((handler) => handler());
     }
 }

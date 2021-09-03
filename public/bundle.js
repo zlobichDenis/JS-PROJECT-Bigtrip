@@ -9550,7 +9550,7 @@ class TripDay extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defaul
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ Filters)
+/* harmony export */   "default": () => (/* binding */ FiltersComponent)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
 /* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
@@ -9579,10 +9579,23 @@ const createTripFiltersTemplate = () => {
     `
 };
 
-class Filters extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
+class FiltersComponent extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
     getTemplate() {
       return createTripFiltersTemplate();
     }
+
+   setActiveEveryFilter(handler) {
+       this.getElement().querySelector('#filter-everything').addEventListener('click', handler);
+   }
+
+   setActiveFutureFilter(handler) {
+       this.getElement().querySelector('#filter-future').addEventListener('click', handler);
+   }
+
+   setActivePastFilter(handler) {
+       this.getElement().querySelector('#filter-past').addEventListener('click', handler);
+   }
+    
 };
 
 
@@ -9598,6 +9611,7 @@ class Filters extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defaul
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FilterType": () => (/* binding */ FilterType),
 /* harmony export */   "MONTH_NAMES": () => (/* binding */ MONTH_NAMES),
 /* harmony export */   "OFFERS_TYPES": () => (/* binding */ OFFERS_TYPES)
 /* harmony export */ });
@@ -9615,6 +9629,12 @@ const MONTH_NAMES = [
     'November',
     'December',
 ];
+
+const FilterType = {
+    EVERY: 'every',
+    FUTURE: 'future',
+    PAST: 'past',
+};
 
 const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'drive']
 
@@ -9688,6 +9708,11 @@ class EventController {
         }
     }
 
+    destroy() {
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.remove)(this._tripEventComponent);
+        (0,_render__WEBPACK_IMPORTED_MODULE_3__.remove)(this._tripEditComponent);
+    }
+
     setDefaultView() {
         if (this._mode !== Mode.DEFAULT) {
             this._replaceEditToEvent()
@@ -9705,6 +9730,61 @@ class EventController {
         this._mode = Mode.DEFAULT;
     }
 }
+
+/***/ }),
+
+/***/ "./src/controllers/filters.js":
+/*!************************************!*\
+  !*** ./src/controllers/filters.js ***!
+  \************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ FiltersController)
+/* harmony export */ });
+/* harmony import */ var _render__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../render */ "./src/render.js");
+/* harmony import */ var _components_tripFilters__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/tripFilters */ "./src/components/tripFilters.js");
+/* harmony import */ var _const__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../const */ "./src/const.js");
+
+
+
+
+class FiltersController { 
+    constructor(container, eventsModel) {
+        this.container = container;
+        this.eventsModel = eventsModel;
+
+        this.activeFilter = _const__WEBPACK_IMPORTED_MODULE_2__.FilterType.EVERY;
+        this._setOnFilterChange = this._setOnFilterChange.bind(this);
+     }
+
+    render() {
+        this.filtersComponent = new _components_tripFilters__WEBPACK_IMPORTED_MODULE_1__.default();
+        (0,_render__WEBPACK_IMPORTED_MODULE_0__.render)(this.container, this.filtersComponent, _render__WEBPACK_IMPORTED_MODULE_0__.RenderPosition.BEFOREEND);
+        this._subscribeOnEvents();
+    }
+
+    _subscribeOnEvents() {
+        this.filtersComponent.setActiveEveryFilter(() => {
+            this.eventsModel.setFilterType(_const__WEBPACK_IMPORTED_MODULE_2__.FilterType.EVERY);
+        });
+
+        this.filtersComponent.setActiveFutureFilter(() => {
+            this.eventsModel.setFilterType(_const__WEBPACK_IMPORTED_MODULE_2__.FilterType.FUTURE);
+        });
+
+        this.filtersComponent.setActivePastFilter(() => {
+            this.eventsModel.setFilterType(_const__WEBPACK_IMPORTED_MODULE_2__.FilterType.FUTURE);
+        });
+    }
+
+    _setOnFilterChange() {
+        this.eventsModel.getEventsByFilter(this.activeFilter);
+    }
+}
+
 
 /***/ }),
 
@@ -9744,7 +9824,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
+const renderEventsByDays = (tripEvents, container, onDataChange, onViewChange) => {
     const eventDayComponent = new _components_tripDay_js__WEBPACK_IMPORTED_MODULE_4__.default(tripEvents);
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(container, eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
@@ -9758,6 +9838,17 @@ const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
         return eventController;
     });
 };
+
+const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
+    return tripEvents.map((event) => {
+        const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(event, onDataChange, onViewChange);
+        eventController.render(event, container, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+        return eventController;
+    })
+
+}
+
+
 
 class TripListController {
     constructor(container, eventsModel) {
@@ -9773,23 +9864,40 @@ class TripListController {
         this._filters = new _components_tripFilters__WEBPACK_IMPORTED_MODULE_3__.default();
 
         this._onDataChange = this._onDataChange.bind(this);
+        this._onFilterChange = this._onFilterChange.bind(this);
         this._onViewChange = this._onViewChange.bind(this);
+
+        this._eventsModel._setFilterChangeHandlers(this._onFilterChange);
     }
 
     render() {
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-        const eventsGroupedByDate = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getEvents());
+    
+        const eventsGroupedByDate = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getAllEvents());
         const tripDays = Object.keys(eventsGroupedByDate);
 
         this._tripDays = tripDays;
         this._tripEvents = eventsGroupedByDate;
 
         this._showedEventsControllers = this._tripDays.map((tripDate) => {
-           return renderEvents(this._tripEvents[tripDate], this._container, this._onDataChange, this._onViewChange);
+           return renderEventsByDays(this._tripEvents[tripDate], this._container, this._onDataChange, this._onViewChange);
         });
     };
+
+    updateEvents() {
+        this._removeEvents();
+        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
+        this._events = this._eventsModel.getEventsByFilter();
+        console.log(this._events)
+        renderEvents(this._events, eventsListComponent, this._onDataChange, this._onViewChange);
+    }
+
+    _removeEvents() {
+        this._showedEventsControllers.forEach((eventControllers) => eventControllers.forEach(eventController => eventController.destroy()));
+        this._showedEventsControllers = [];
+    }
 
     _onDataChange(eventController, oldData, newData) {
         const isSucces = this._eventsModel(oldData.id, newData.id);
@@ -9805,6 +9913,10 @@ class TripListController {
                 tripEvent.setDefaultView(tripEvent);
             });
         });
+    }
+
+    _onFilterChange() {
+        this.updateEvents();
     }
 }
 
@@ -10048,6 +10160,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ EventsModel)
 /* harmony export */ });
 /* harmony import */ var _mock_events__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../mock/events */ "./src/mock/events.js");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util */ "./src/util.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+
+
 
 
 
@@ -10056,10 +10172,22 @@ class EventsModel {
         this._events = [];
 
         this._dataChangeHandlers = [];
+        this._filterChangeHandlers = [];
+        
+        this.activeFilter = _const_js__WEBPACK_IMPORTED_MODULE_2__.FilterType.EVERY;
     }
 
-    getEvents() {
+    getAllEvents() {
         return this._events;
+    }
+
+    getEventsByFilter() {
+        return (0,_util__WEBPACK_IMPORTED_MODULE_1__.generateEventsByFilter)(this._events, this.activeFilter);
+    }
+
+    setFilterType(activeFilter) {
+        this.activeFilter = activeFilter;
+        this._callHandlers(this._filterChangeHandlers);
     }
 
     setEvents(events) {
@@ -10083,8 +10211,12 @@ class EventsModel {
         this._dataChangeHandlers.push(handler);
     }
 
-    _callHandlers() {
-        this._dataChangeHandlers.forEach((handler) => handler());
+    _setFilterChangeHandlers(handler) {
+        this._filterChangeHandlers.push(handler);
+    }
+
+    _callHandlers(handlers) {
+        handlers.forEach((handler) => handler());
     }
 }
 
@@ -10102,7 +10234,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "createElement": () => (/* binding */ createElement),
 /* harmony export */   "RenderPosition": () => (/* binding */ RenderPosition),
 /* harmony export */   "replace": () => (/* binding */ replace),
-/* harmony export */   "render": () => (/* binding */ render)
+/* harmony export */   "render": () => (/* binding */ render),
+/* harmony export */   "remove": () => (/* binding */ remove)
 /* harmony export */ });
 const createElement = (template) => {
     const newElement = document.createElement('div');
@@ -10140,6 +10273,11 @@ const render = (container, component, place) => {
     }
 };
 
+const remove = (component) => {
+    component.getElement().remove();
+    component.removeElement();
+};
+
 /***/ }),
 
 /***/ "./src/util.js":
@@ -10153,6 +10291,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "formatTime": () => (/* binding */ formatTime),
 /* harmony export */   "formatDate": () => (/* binding */ formatDate),
+/* harmony export */   "generateEventsByFilter": () => (/* binding */ generateEventsByFilter),
 /* harmony export */   "getRandomIntNumber": () => (/* binding */ getRandomIntNumber),
 /* harmony export */   "getRandomDate": () => (/* binding */ getRandomDate),
 /* harmony export */   "getRandomArrayElem": () => (/* binding */ getRandomArrayElem),
@@ -10161,6 +10300,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _const__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./const */ "./src/const.js");
+
 
 
 const getRandomIntNumber = (min, max) => {
@@ -10209,8 +10350,23 @@ const groupByDays = (events) => {
         acc[date] = [elem];
       }
       return acc;
-}, {})
+    }, {})
 };
+
+const getFutureEvents = (events) => events.filter((event) => event.date_from.getTime() > Date.now());
+
+const getPastEvents = (events) => events.filter((event) => event.date_from.getTime()< Date.now());
+
+const generateEventsByFilter = (events, filterType) => {
+    switch(filterType) {
+        case _const__WEBPACK_IMPORTED_MODULE_1__.FilterType.EVERY: 
+            return events;
+        case _const__WEBPACK_IMPORTED_MODULE_1__.FilterType.FUTURE:
+            return getFutureEvents(events);
+        case _const__WEBPACK_IMPORTED_MODULE_1__.FilterType.PAST:
+            return getPastEvents(events);
+    }
+}
 
 
 
@@ -10312,9 +10468,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_menu_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/menu.js */ "./src/components/menu.js");
 /* harmony import */ var _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/tripFilters.js */ "./src/components/tripFilters.js");
 /* harmony import */ var _models_events_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./models/events.js */ "./src/models/events.js");
-/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
-/* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
-/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
+/* harmony import */ var _controllers_filters_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./controllers/filters.js */ "./src/controllers/filters.js");
+/* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
+/* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
+/* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
+
 
 
 
@@ -10332,14 +10490,16 @@ const tripControls = document.querySelector('.trip-main__trip-controls');
 const tripEvents = document.querySelector('.trip-events');
 
 const COUNT_EVENTS = 10;
-const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_5__.generateEvents)(COUNT_EVENTS);
-const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_6__.sortDatesAscending)(events);
+const events = (0,_mock_events_js__WEBPACK_IMPORTED_MODULE_6__.generateEvents)(COUNT_EVENTS);
+const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.sortDatesAscending)(events);
 
 const eventsModel = new _models_events_js__WEBPACK_IMPORTED_MODULE_3__.default();
 eventsModel.setEvents(sortedEvents);
 
-(0,_render_js__WEBPACK_IMPORTED_MODULE_4__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_1__.default(), _render_js__WEBPACK_IMPORTED_MODULE_4__.RenderPosition.AFTERBEGIN);
-(0,_render_js__WEBPACK_IMPORTED_MODULE_4__.render)(tripControls, new _components_tripFilters_js__WEBPACK_IMPORTED_MODULE_2__.default(), _render_js__WEBPACK_IMPORTED_MODULE_4__.RenderPosition.BEFOREEND);
+(0,_render_js__WEBPACK_IMPORTED_MODULE_5__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_1__.default(), _render_js__WEBPACK_IMPORTED_MODULE_5__.RenderPosition.AFTERBEGIN);
+const filterController = new _controllers_filters_js__WEBPACK_IMPORTED_MODULE_4__.default(tripControls, eventsModel);
+filterController.render()
+
 
 const tripDaysList = new _controllers_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_0__.default(tripEvents, eventsModel);
 tripDaysList.render();

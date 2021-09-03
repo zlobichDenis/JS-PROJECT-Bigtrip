@@ -1,4 +1,5 @@
 import moment from "moment";
+import { FilterType } from "./const";
 
 const getRandomIntNumber = (min, max) => {
     return parseInt(Math.random() * (max - min) + min);
@@ -46,8 +47,23 @@ const groupByDays = (events) => {
         acc[date] = [elem];
       }
       return acc;
-}, {})
+    }, {})
 };
+
+const getFutureEvents = (events) => events.filter((event) => event.date_from.getTime() > Date.now());
+
+const getPastEvents = (events) => events.filter((event) => event.date_from.getTime()< Date.now());
+
+export const generateEventsByFilter = (events, filterType) => {
+    switch(filterType) {
+        case FilterType.EVERY: 
+            return events;
+        case FilterType.FUTURE:
+            return getFutureEvents(events);
+        case FilterType.PAST:
+            return getPastEvents(events);
+    }
+}
 
 
 

@@ -1,7 +1,7 @@
 import TripDay from "../components/tripDay";
 import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
-import { render, RenderPosition, replace } from "../render";
+import { render, RenderPosition, replace, remove} from "../render";
 
 export const Mode = {
     DEFAULT: 'default',
@@ -46,6 +46,11 @@ export default class EventController {
         } else {
             render(container.getElement(), this._tripEventComponent, RenderPosition.BEFOREEND);
         }
+    }
+
+    destroy() {
+        remove(this._tripEventComponent);
+        remove(this._tripEditComponent);
     }
 
     setDefaultView() {

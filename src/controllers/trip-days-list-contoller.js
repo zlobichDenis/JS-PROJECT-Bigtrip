@@ -12,7 +12,7 @@ import { groupByDays } from "../util";
 import EventController, {Mode} from "./event-controller";
 
 
-const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
+const renderEventsByDays = (tripEvents, container, onDataChange, onViewChange) => {
     const eventDayComponent = new TripDay(tripEvents);
     render(container, eventDayComponent, RenderPosition.BEFOREEND);
 
@@ -26,6 +26,17 @@ const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
         return eventController;
     });
 };
+
+const renderEvents = (tripEvents, container, onDataChange, onViewChange) => {
+    return tripEvents.map((event) => {
+        const eventController = new EventController(event, onDataChange, onViewChange);
+        eventController.render(event, container, Mode.DEFAULT);
+        return eventController;
+    })
+
+}
+
+
 
 export default class TripListController {
     constructor(container, eventsModel) {
@@ -41,23 +52,38 @@ export default class TripListController {
         this._filters = new Filters();
 
         this._onDataChange = this._onDataChange.bind(this);
+        this._onFilterChange = this._onFilterChange.bind(this);
         this._onViewChange = this._onViewChange.bind(this);
+
+        this._eventsModel._setFilterChangeHandlers(this._onFilterChange);
     }
 
     render() {
         render(this._container, this._sort, RenderPosition.BEFOREEND);
         render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
 
-        const eventsGroupedByDate = groupByDays(this._eventsModel.getEvents());
+        const eventsGroupedByDate = groupByDays(this._eventsModel.getAllEvents());
         const tripDays = Object.keys(eventsGroupedByDate);
 
         this._tripDays = tripDays;
         this._tripEvents = eventsGroupedByDate;
 
         this._showedEventsControllers = this._tripDays.map((tripDate) => {
-           return renderEvents(this._tripEvents[tripDate], this._container, this._onDataChange, this._onViewChange);
+           return renderEventsByDays(this._tripEvents[tripDate], this._container, this._onDataChange, this._onViewChange);
         });
     };
+
+    updateEvents() {
+        this._removeEvents();
+        const eventsListComponent = new TripEventsList();
+        this._events = this._eventsModel.getEventsByFilter();
+        renderEvents(this._events, eventsListComponent, this._onDataChange, this._onViewChange);
+    }
+
+    _removeEvents() {
+        this._showedEventsControllers.forEach((eventControllers) => eventControllers.forEach(eventController => eventController.destroy()));
+        this._showedEventsControllers = [];
+    }
 
     _onDataChange(eventController, oldData, newData) {
         const isSucces = this._eventsModel(oldData.id, newData.id);
@@ -73,5 +99,9 @@ export default class TripListController {
                 tripEvent.setDefaultView(tripEvent);
             });
         });
+    }
+
+    _onFilterChange() {
+        this.updateEvents();
     }
 }
