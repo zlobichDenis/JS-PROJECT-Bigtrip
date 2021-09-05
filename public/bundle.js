@@ -9040,7 +9040,6 @@ const parseForm = (data) => {
   const nameOfDestination = data.get('event-destination');
   const pointOfDestination = _data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination.find((point) => point.name === nameOfDestination);
   const eventType = data.get('event-type');
-  console.log(eventType);
   const eventData = _data_js__WEBPACK_IMPORTED_MODULE_1__.offers.find((offer) => offer.type === eventType);
   eventData.offers.forEach((offer) => {
     offer.isChecked = data.get(`event-offer-${offer.title.toLowerCase()}`)
@@ -9229,8 +9228,11 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
   }
 
   recoveryListeners() {
+    this._applyFlatpickr();
     this.setSaveBtnClickHandler(this._submitHandler);
     this._subscribeOnEvents();
+    this.setOnStartDateChange();
+    this.setOnEndDateChange();
   }
 
   rerender() {
@@ -9245,21 +9247,20 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     }
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
-    this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
-/*       altInput: true, */
+    this._startFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
+      altFormat: 'd/m/Y H:i',
+      altInput: true,
       allowInput: true,
       enableTime: true,
-      dateFormat: 'd/m/Y H:i',
       defaultDate: this._tripEvent.date_from,
-      maxDate: this._tripEvent.date_to,
     });
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
-    this._flatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
-/*       altInput: true, */
+    this._endFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
+      altFormat: 'd/m/Y H:i',
+      altInput: true,
       allowInput: true,
       enableTime: true,
-      dateFormat: 'd/m/Y H:i',
       defaultDate: this._tripEvent.date_to,
     });
   }
@@ -9269,6 +9270,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     this._copyEvent = this._tripEvent;
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
+    this.onChangePrice(element);
   }
 
   setSaveBtnClickHandler(handler) {
@@ -9287,6 +9289,12 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     });
   }
 
+  onChangePrice(element) {
+    element.querySelector('.event__input--price').addEventListener('input', (evt) => {
+      this._tripEvent.basePrice = evt.target.value;
+    })
+  }
+
   onChangeEventType(element) {
     element.querySelectorAll('.event__type-input').forEach((typeItem) => {
       typeItem.addEventListener('click', (evt) => {
@@ -9298,7 +9306,19 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     });
   }
 
-  
+  setOnStartDateChange(handler) {
+    this._startFlatpickr.config.onClose.push(() => {
+      handler(this._startFlatpickr, this._tripEvent);
+    });
+    this._flatpickrStartHandler = handler;
+  }
+
+  setOnEndDateChange(handler) {
+    this._endFlatpickr.config.onClose.push(() => {
+      handler(this._endFlatpickr, this._tripEvent);
+    });
+    this._flatpickrEndHandler = handler;
+  }
 };
 
 
@@ -9417,9 +9437,9 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
   const firstDay = eventsByDate[0];
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
-  const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[dateFrom.getMonth()];
-  const dayOfTravel = dateFrom.getDate();
-  
+  const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[new Date(dateFrom).getMonth()];
+  const dayOfTravel = new Date(dateFrom).getDate();
+
     return `<li class="trip-days__item  day">
         <div class="day__info">
           <span class="day__counter">${counterOfDay === null ? '' : counterOfDay}</span>
@@ -9501,7 +9521,6 @@ const createOffersMarkup = (offers) => {
   
   const createTripEventMarkup = (tripEvent) => {
         const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
-  
         const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
         const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
         const offersList = createOffersMarkup(offers);
@@ -9742,6 +9761,16 @@ class EventController {
 
         this._tripEditComponent.setDeleteBtnHandler((evt) => {
             evt.preventDefault();
+        });
+
+        this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
+            const selectedStartDate = flatpickr.selectedDates[0];
+            tripEvent.date_from = selectedStartDate;
+        })
+
+        this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
+            const selectedEndDate = flatpickr.selectedDates[0];
+            tripEvent.date_to = selectedEndDate;
         })
 
         if(oldEventEditComponent && oldEventComponent) {
@@ -10191,7 +10220,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const generateEvent = (item) => {
+const generateEvent = () => {
     const destination = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination);
     const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
     return {
@@ -10206,7 +10235,7 @@ const generateEvent = (item) => {
 };
 
 const generateEvents = (count) => {
-    return new Array(count).fill('').map((item) => generateEvent(item));
+    return new Array(count).fill('').map((item) => generateEvent());
 };
 
 
@@ -10394,7 +10423,7 @@ const castTimeFormat = (value) => {
 };
 
 const formatTime = (date) => {
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format(`hh:mm`);
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date, true).format(`hh:mm`);
 };
     
 const formatDate = (date) => {
@@ -10419,9 +10448,9 @@ const groupByDays = (events) => {
     }, {})
 };
 
-const getFutureEvents = (events) => events.filter((event) => event.date_from.getTime() > Date.now());
+const getFutureEvents = (events) => events.filter((event) => new Date(event.date_from).getTime() > Date.now());
 
-const getPastEvents = (events) => events.filter((event) => event.date_from.getTime()< Date.now());
+const getPastEvents = (events) => events.filter((event) => new Date(event.date_from).getTime()< Date.now());
 
 const generateEventsByFilter = (events, filterType) => {
     switch(filterType) {

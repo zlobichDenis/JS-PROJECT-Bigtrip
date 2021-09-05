@@ -2,7 +2,7 @@ import { getRandomArrayElem, getRandomIntNumber } from "../util.js";
 import { pointsOfDestination, offers } from "../data.js";
 import { getRandomDate } from "../util.js";
 
-const generateEvent = (item) => {
+const generateEvent = () => {
     const destination = getRandomArrayElem(pointsOfDestination);
     const offer = getRandomArrayElem(offers); 
     return {
@@ -17,7 +17,7 @@ const generateEvent = (item) => {
 };
 
 const generateEvents = (count) => {
-    return new Array(count).fill('').map((item) => generateEvent(item));
+    return new Array(count).fill('').map((item) => generateEvent());
 };
 
 export {generateEvents};

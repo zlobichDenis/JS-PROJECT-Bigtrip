@@ -6,9 +6,9 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
   const firstDay = eventsByDate[0];
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
-  const monthOfTravel = MONTH_NAMES[dateFrom.getMonth()];
-  const dayOfTravel = dateFrom.getDate();
-  
+  const monthOfTravel = MONTH_NAMES[new Date(dateFrom).getMonth()];
+  const dayOfTravel = new Date(dateFrom).getDate();
+
     return `<li class="trip-days__item  day">
         <div class="day__info">
           <span class="day__counter">${counterOfDay === null ? '' : counterOfDay}</span>

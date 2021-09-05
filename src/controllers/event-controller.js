@@ -43,6 +43,16 @@ export default class EventController {
 
         this._tripEditComponent.setDeleteBtnHandler((evt) => {
             evt.preventDefault();
+        });
+
+        this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
+            const selectedStartDate = flatpickr.selectedDates[0];
+            tripEvent.date_from = selectedStartDate;
+        })
+
+        this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
+            const selectedEndDate = flatpickr.selectedDates[0];
+            tripEvent.date_to = selectedEndDate;
         })
 
         if(oldEventEditComponent && oldEventComponent) {

@@ -15,7 +15,6 @@ const createOffersMarkup = (offers) => {
   
   const createTripEventMarkup = (tripEvent) => {
         const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
-  
         const timeFrom = formatTime(dateFrom);
         const timeTo = formatTime(dateTo);
         const offersList = createOffersMarkup(offers);

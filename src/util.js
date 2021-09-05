@@ -25,7 +25,7 @@ const castTimeFormat = (value) => {
 };
 
 export const formatTime = (date) => {
-    return moment(date).format(`hh:mm`);
+    return moment(date, true).format(`hh:mm`);
 };
     
 export const formatDate = (date) => {
@@ -50,9 +50,9 @@ const groupByDays = (events) => {
     }, {})
 };
 
-const getFutureEvents = (events) => events.filter((event) => event.date_from.getTime() > Date.now());
+const getFutureEvents = (events) => events.filter((event) => new Date(event.date_from).getTime() > Date.now());
 
-const getPastEvents = (events) => events.filter((event) => event.date_from.getTime()< Date.now());
+const getPastEvents = (events) => events.filter((event) => new Date(event.date_from).getTime()< Date.now());
 
 export const generateEventsByFilter = (events, filterType) => {
     switch(filterType) {

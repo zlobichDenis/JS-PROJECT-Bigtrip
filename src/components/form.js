@@ -198,8 +198,11 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   recoveryListeners() {
+    this._applyFlatpickr();
     this.setSaveBtnClickHandler(this._submitHandler);
     this._subscribeOnEvents();
+    this.setOnStartDateChange();
+    this.setOnEndDateChange();
   }
 
   rerender() {
@@ -214,21 +217,20 @@ export default class EditForm extends AbstractSmartComponent {
     }
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
-    this._flatpickr = flatpickr(dateFromElement, {
-/*       altInput: true, */
+    this._startFlatpickr = flatpickr(dateFromElement, {
+      altFormat: 'd/m/Y H:i',
+      altInput: true,
       allowInput: true,
       enableTime: true,
-      dateFormat: 'd/m/Y H:i',
       defaultDate: this._tripEvent.date_from,
-      maxDate: this._tripEvent.date_to,
     });
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
-    this._flatpickr = flatpickr(dateToElement, {
-/*       altInput: true, */
+    this._endFlatpickr = flatpickr(dateToElement, {
+      altFormat: 'd/m/Y H:i',
+      altInput: true,
       allowInput: true,
       enableTime: true,
-      dateFormat: 'd/m/Y H:i',
       defaultDate: this._tripEvent.date_to,
     });
   }
@@ -238,6 +240,7 @@ export default class EditForm extends AbstractSmartComponent {
     this._copyEvent = this._tripEvent;
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
+    this.onChangePrice(element);
   }
 
   setSaveBtnClickHandler(handler) {
@@ -256,6 +259,12 @@ export default class EditForm extends AbstractSmartComponent {
     });
   }
 
+  onChangePrice(element) {
+    element.querySelector('.event__input--price').addEventListener('input', (evt) => {
+      this._tripEvent.basePrice = evt.target.value;
+    })
+  }
+
   onChangeEventType(element) {
     element.querySelectorAll('.event__type-input').forEach((typeItem) => {
       typeItem.addEventListener('click', (evt) => {
@@ -267,5 +276,17 @@ export default class EditForm extends AbstractSmartComponent {
     });
   }
 
-  
+  setOnStartDateChange(handler) {
+    this._startFlatpickr.config.onClose.push(() => {
+      handler(this._startFlatpickr, this._tripEvent);
+    });
+    this._flatpickrStartHandler = handler;
+  }
+
+  setOnEndDateChange(handler) {
+    this._endFlatpickr.config.onClose.push(() => {
+      handler(this._endFlatpickr, this._tripEvent);
+    });
+    this._flatpickrEndHandler = handler;
+  }
 };
