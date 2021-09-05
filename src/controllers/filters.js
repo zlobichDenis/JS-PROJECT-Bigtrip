@@ -1,5 +1,5 @@
 import { render, RenderPosition} from '../render';
-import FiltersComponent from '../components/tripFilters';
+import FiltersComponent from '../components/trip-filters';
 import { FilterType } from '../const';
 
 export default class FiltersController { 
@@ -27,7 +27,7 @@ export default class FiltersController {
         });
 
         this.filtersComponent.setActivePastFilter(() => {
-            this.eventsModel.setFilterType(FilterType.FUTURE);
+            this.eventsModel.setFilterType(FilterType.PAST);
         });
     }
 

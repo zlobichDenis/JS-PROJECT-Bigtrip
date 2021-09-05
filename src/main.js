@@ -1,6 +1,6 @@
 import TripListController from './controllers/trip-days-list-contoller.js';
 import TripMenu from './components/menu.js';
-import Filters from './components/tripFilters.js';
+import Filters from './components/trip-filters.js';
 import EventsModel from './models/events.js';
 import FiltersController from './controllers/filters.js';
 

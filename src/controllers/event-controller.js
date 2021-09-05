@@ -1,4 +1,4 @@
-import TripDay from "../components/tripDay";
+import TripDay from "../components/trip-day";
 import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace, remove} from "../render";
