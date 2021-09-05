@@ -40,14 +40,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": true,
             },
             {
                 'title': 'Order Uber',
                 'price': 20,
+                "isChecked": false,
             }
         ],
     },{
@@ -56,18 +59,22 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 'title': 'add meal',
                 'price': 15,
+                "isChecked": false,
             },
             {
                 'title': 'add luggage',
                 'price': 30,
+                "isChecked": false,
             }
         ],
     },{
@@ -76,10 +83,12 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
         ],
     }, {
@@ -88,10 +97,12 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
         ],
     },{
@@ -100,14 +111,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": false,
             },
         ],
     }, {
@@ -116,14 +130,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": false,
             },
         ],
     }, {
@@ -132,6 +149,7 @@ const offers = [
             {
                 "title": "Rent a car",
                 "price": 200,
+                "isChecked": false,
             }, 
         ],
     },  {
@@ -140,6 +158,7 @@ const offers = [
             {
                 "title": "Add breakfest",
                 "price": 50,
+                "isChecked": false,
             }
         ],
     },  {
@@ -148,10 +167,12 @@ const offers = [
             {
                 "title": "Book tickets",
                 "price": 40,
+                "isChecked": false,
             }, 
             {
                 "title": "Lunch in city",
                 "price": 30,
+                "isChecked": false,
             }
         ],
     },  {
@@ -160,10 +181,12 @@ const offers = [
             {
                 "title": "Breakfest",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Lunch",
                 "price": 60,
+                "isChecked": false,
             }
         ],
     }, 

@@ -9035,10 +9035,31 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const eventsCounter = 1;
 
-const createDestinationOptionTemplate = (name) => {
-  return `<option value="${name}"></option>`
+const parseForm = (data) => {
+  const nameOfDestination = data.get('event-destination');
+  const pointOfDestination = _data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination.find((point) => point.name === nameOfDestination);
+  const eventType = data.get('event-type');
+  console.log(eventType);
+  const eventData = _data_js__WEBPACK_IMPORTED_MODULE_1__.offers.find((offer) => offer.type === eventType);
+  eventData.offers.forEach((offer) => {
+    offer.isChecked = data.get(`event-offer-${offer.title.toLowerCase()}`)
+  });
+
+  return {
+    "base_price": data.get('event-price'), // Сумма цент всех офферов путешествия
+    "date_from": data.get('event-start-time'), // функция для определения
+    "date_to": data.get('event-end-time'),
+    "destination": pointOfDestination, // Массив состоящий из все точек путешествий
+    "id": String(new Date() + Math.random), // Счетчик i
+    "is_favorite": data.get('event-favorite'),
+    "offers": eventData,
+  }
+}
+
+const createDestinationOptionTemplate = (name, selectedDestination) => {
+
+  return `<option ${name === selectedDestination ? 'selected="selected"' : ''} value="${name}"></option>`
 }
 
 const createEventTypeEditTemplate = (offerName, offerType) => {
@@ -9049,6 +9070,15 @@ const createEventTypeEditTemplate = (offerName, offerType) => {
   <label class="event__type-label  event__type-label--${offerName}" for="event-type-${offerName}-1">${offerName}</label>
 </div>`
 };
+
+const createEventOtherTypeEditTemplate = (offerName, offerType) => {
+  const isChecked = offerName === offerType ? 'checked' : '';
+
+  return `<div class="event__type-item">
+  <input id="event-type-${offerName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offerName}" ${isChecked}>
+  <label class="event__type-label  event__type-label--${offerName}" for="event-type-${offerName}-1">${offerName}</label>
+</div>`
+}
 
 const createEditTimeTemplate = (timeFrom, timeTo) => {
 
@@ -9066,16 +9096,17 @@ const createEditTimeTemplate = (timeFrom, timeTo) => {
 };
 
 const createOneEditOfferTemplate = (offer) => {
-
+  const offerTitle = offer.title.toLowerCase();
   return `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}">
-  <label class="event__offer-label" for="event-offer-${offer.title}-1">
-    <span class="event__offer-title">${offer.title}</span>
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}-1" type="checkbox" name="event-offer-${offerTitle}" ${offer.isChecked ? 'checked = "true"' : ''}">
+  <label class="event__offer-label" for="event-offer-${offerTitle}-1">
+    <span class="event__offer-title">${offerTitle}</span>
     &plus;
     &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
   </label>
 </div>`
 };
+
 
 const createEditOffersTemplate = (offers) => {
   const availableOffersTemplate = offers.map((offer) => {
@@ -9098,14 +9129,18 @@ const createEditFormTemplate = (tripEvent) => {
   const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_4__.formatDate)(dateFrom);
   const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_4__.formatDate)(dateTo);
 
+  const destinationName = destination.name;
   const destinationOption = _data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination.map((point) => {
-    return createDestinationOptionTemplate(point.name);
+    return createDestinationOptionTemplate(point.name, destinationName );
   }).join('\n');
   const editOffersTemplate = createEditOffersTemplate(offers.offers);
   const editTimeTemplate= createEditTimeTemplate(timeFrom, timeTo);
   const eventTypeEditTemplate = _const_js__WEBPACK_IMPORTED_MODULE_0__.OFFERS_TYPES.map((offerName) =>{
     return createEventTypeEditTemplate(offerName, offers.type);
   }).join('\n');
+  const otherEventTypeEditTemplate = _const_js__WEBPACK_IMPORTED_MODULE_0__.OTHER_OFFERS.map((offerName) =>{
+    return createEventOtherTypeEditTemplate(offerName, offers.type);
+  }).join('\n')
 
     return (`<form class="trip-events__item  event  event--edit" action="#" method="post">
     <header class="event__header">
@@ -9124,21 +9159,7 @@ const createEditFormTemplate = (tripEvent) => {
 
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Activity</legend>
-
-            <div class="event__type-item">
-              <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-              <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-              <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-              <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-            </div>
+              ${otherEventTypeEditTemplate}
           </fieldset>
         </div>
       </div>
@@ -9147,7 +9168,7 @@ const createEditFormTemplate = (tripEvent) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${offers.type} to 
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${destinationOption}
         </datalist>
@@ -9162,7 +9183,7 @@ const createEditFormTemplate = (tripEvent) => {
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Cancel</button>
+      <button class="event__reset-btn" type="reset">Delete</button>
 
       <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? 'checked' : ''}>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -9194,6 +9215,18 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     return createEditFormTemplate(this._tripEvent);
   }
 
+  reset() {
+    this._tripEvent = this._copyEvent;
+    this.rerender();
+  }
+
+
+  getData() {
+    const form = this.getElement();
+    const formData = new FormData(form);
+
+    return parseForm(formData);
+  }
 
   recoveryListeners() {
     this.setSaveBtnClickHandler(this._submitHandler);
@@ -9233,6 +9266,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
   _subscribeOnEvents() {
     const element = this.getElement();
+    this._copyEvent = this._tripEvent;
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
   }
@@ -9242,9 +9276,12 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     this._submitHandler = handler;
   }
 
+  setDeleteBtnHandler(handler) {
+    this.getElement().querySelector('.event__reset-btn').addEventListener('click', handler);
+  }
+
   setFavoritesButton(element) {
     element.querySelector('.event__favorite-btn').addEventListener('click', () => {
-/*       this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite})) */
       this._tripEvent.is_favorite = !this._tripEvent.is_favorite;
       this.rerender();
     });
@@ -9260,6 +9297,8 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
       })
     });
   }
+
+  
 };
 
 
@@ -9611,7 +9650,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "FilterType": () => (/* binding */ FilterType),
 /* harmony export */   "MONTH_NAMES": () => (/* binding */ MONTH_NAMES),
-/* harmony export */   "OFFERS_TYPES": () => (/* binding */ OFFERS_TYPES)
+/* harmony export */   "OFFERS_TYPES": () => (/* binding */ OFFERS_TYPES),
+/* harmony export */   "OTHER_OFFERS": () => (/* binding */ OTHER_OFFERS)
 /* harmony export */ });
 const MONTH_NAMES = [
     'January',
@@ -9634,7 +9674,8 @@ const FilterType = {
     PAST: 'past',
 };
 
-const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'drive']
+const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'drive'];
+const OTHER_OFFERS = ['sightseeing', 'check-in', 'restaurant'];
 
 
 
@@ -9667,8 +9708,9 @@ const Mode = {
 }
 
 class EventController {
-    constructor(tripEvent, onDataChange, onViewChange) {
+    constructor(tripEvent, container, onDataChange, onViewChange) {
         this._tripEvent = tripEvent;
+        this._container = container;
 
         this._tripEventComponent = null;
         this._tripEditComponent = null;
@@ -9679,15 +9721,14 @@ class EventController {
         this._mode = Mode.DEFAULT;
     }
 
-    render(tripEvent, container, mode) {
+    render(tripEvent, mode) {
         const oldEventComponent = this._tripEventComponent;
-        const oldEventEditComponent = this._eventEditComponent;
+        const oldEventEditComponent = this._tripEditComponent;
 
         this._mode = mode;
-        this._tripEvent = tripEvent;
 
-        this._tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(this._tripEvent);
-        this._tripEditComponent = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(this._tripEvent, this._onDataChange);
+        this._tripEventComponent = new _components_trip_event__WEBPACK_IMPORTED_MODULE_2__.default(tripEvent);
+        this._tripEditComponent = new _components_form__WEBPACK_IMPORTED_MODULE_1__.default(tripEvent, this._onDataChange);
 
         this._tripEventComponent.setEditButtonClickHandler(() => {
             this._replaceEventToEdit();
@@ -9695,16 +9736,23 @@ class EventController {
     
         this._tripEditComponent.setSaveBtnClickHandler((evt) => {
             evt.preventDefault();
-            this._replaceEditToEvent();
+            const data = this._tripEditComponent.getData();
+            this._onDataChange(this, tripEvent, data);
         });
+
+        this._tripEditComponent.setDeleteBtnHandler((evt) => {
+            evt.preventDefault();
+        })
 
         if(oldEventEditComponent && oldEventComponent) {
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, oldEventComponent);
-            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEditComponent, oldTaskEditComponent);
+            (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEditComponent, oldEventEditComponent);
+            this._replaceEditToEvent();
         } else {
-            (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(container.getElement(), this._tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.BEFOREEND);
+            (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(this._container.getElement(), this._tripEventComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.AFTERBEGIN);
         }
     }
+    
 
     destroy() {
         (0,_render__WEBPACK_IMPORTED_MODULE_3__.remove)(this._tripEventComponent);
@@ -9724,7 +9772,10 @@ class EventController {
     }
 
     _replaceEditToEvent() {
-        (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, this._tripEditComponent);
+        this._tripEditComponent.reset();
+        if (document.contains(this._tripEditComponent.getElement())) {
+          (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, this._tripEditComponent);
+        }
         this._mode = Mode.DEFAULT;
     }
 }
@@ -9830,14 +9881,12 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
     return tripEvents.map((tripEvent) => {
-        const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(tripEvent, onDataChange, onViewChange);
-        eventController.render(tripEvent, eventsListComponent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+        const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(tripEvent, eventsListComponent, onDataChange, onViewChange);
+        eventController.render(tripEvent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
         
         return eventController;
     });
 };
-
-
 
 
 class TripListController {
@@ -9894,10 +9943,9 @@ class TripListController {
     }
 
     _onDataChange(eventController, oldData, newData) {
-        const isSucces = this._eventsModel(oldData.id, newData.id);
-        const container = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default.getElement();
+        const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
         if (isSucces) {
-            eventController.render(newData, container, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+            eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
         }
     }
 
@@ -9970,14 +10018,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": true,
             },
             {
                 'title': 'Order Uber',
                 'price': 20,
+                "isChecked": false,
             }
         ],
     },{
@@ -9986,18 +10037,22 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 'title': 'add meal',
                 'price': 15,
+                "isChecked": false,
             },
             {
                 'title': 'add luggage',
                 'price': 30,
+                "isChecked": false,
             }
         ],
     },{
@@ -10006,10 +10061,12 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
         ],
     }, {
@@ -10018,10 +10075,12 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
         ],
     },{
@@ -10030,14 +10089,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": false,
             },
         ],
     }, {
@@ -10046,14 +10108,17 @@ const offers = [
             {
                 "title": "Upgrade to a business class",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Chose seats",
                 "price": 5,
+                "isChecked": false,
             },
             {
                 "title": "Choose the radio station",
                 "price": 60,
+                "isChecked": false,
             },
         ],
     }, {
@@ -10062,6 +10127,7 @@ const offers = [
             {
                 "title": "Rent a car",
                 "price": 200,
+                "isChecked": false,
             }, 
         ],
     },  {
@@ -10070,6 +10136,7 @@ const offers = [
             {
                 "title": "Add breakfest",
                 "price": 50,
+                "isChecked": false,
             }
         ],
     },  {
@@ -10078,10 +10145,12 @@ const offers = [
             {
                 "title": "Book tickets",
                 "price": 40,
+                "isChecked": false,
             }, 
             {
                 "title": "Lunch in city",
                 "price": 30,
+                "isChecked": false,
             }
         ],
     },  {
@@ -10090,10 +10159,12 @@ const offers = [
             {
                 "title": "Breakfest",
                 "price": 120,
+                "isChecked": false,
             }, 
             {
                 "title": "Lunch",
                 "price": 60,
+                "isChecked": false,
             }
         ],
     }, 
@@ -10190,13 +10261,14 @@ class EventsModel {
     }
 
     updateEvent(id, event) {
-        const index = this._events.findIndex((it) => it === id);
+        const index = this._events.findIndex((it) => it.id === id);
 
         if (index === -1) {
             return false;
         }
 
         this._events = [].concat(this._events.slice(0, index), event, this._events.slice(index + 1));
+        this._callHandlers(this._dataChangeHandlers);
         
         return true;
     }

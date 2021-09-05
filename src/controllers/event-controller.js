@@ -9,8 +9,9 @@ export const Mode = {
 }
 
 export default class EventController {
-    constructor(tripEvent, onDataChange, onViewChange) {
+    constructor(tripEvent, container, onDataChange, onViewChange) {
         this._tripEvent = tripEvent;
+        this._container = container;
 
         this._tripEventComponent = null;
         this._tripEditComponent = null;
@@ -21,15 +22,14 @@ export default class EventController {
         this._mode = Mode.DEFAULT;
     }
 
-    render(tripEvent, container, mode) {
+    render(tripEvent, mode) {
         const oldEventComponent = this._tripEventComponent;
-        const oldEventEditComponent = this._eventEditComponent;
+        const oldEventEditComponent = this._tripEditComponent;
 
         this._mode = mode;
-        this._tripEvent = tripEvent;
 
-        this._tripEventComponent = new TripDayEvents(this._tripEvent);
-        this._tripEditComponent = new EditForm(this._tripEvent, this._onDataChange);
+        this._tripEventComponent = new TripDayEvents(tripEvent);
+        this._tripEditComponent = new EditForm(tripEvent, this._onDataChange);
 
         this._tripEventComponent.setEditButtonClickHandler(() => {
             this._replaceEventToEdit();
@@ -37,16 +37,23 @@ export default class EventController {
     
         this._tripEditComponent.setSaveBtnClickHandler((evt) => {
             evt.preventDefault();
-            this._replaceEditToEvent();
+            const data = this._tripEditComponent.getData();
+            this._onDataChange(this, tripEvent, data);
         });
+
+        this._tripEditComponent.setDeleteBtnHandler((evt) => {
+            evt.preventDefault();
+        })
 
         if(oldEventEditComponent && oldEventComponent) {
             replace(this._tripEventComponent, oldEventComponent);
-            replace(this._tripEditComponent, oldTaskEditComponent);
+            replace(this._tripEditComponent, oldEventEditComponent);
+            this._replaceEditToEvent();
         } else {
-            render(container.getElement(), this._tripEventComponent, RenderPosition.BEFOREEND);
+            render(this._container.getElement(), this._tripEventComponent, RenderPosition.AFTERBEGIN);
         }
     }
+    
 
     destroy() {
         remove(this._tripEventComponent);
@@ -66,7 +73,10 @@ export default class EventController {
     }
 
     _replaceEditToEvent() {
-        replace(this._tripEventComponent, this._tripEditComponent);
+        this._tripEditComponent.reset();
+        if (document.contains(this._tripEditComponent.getElement())) {
+          replace(this._tripEventComponent, this._tripEditComponent);
+        }
         this._mode = Mode.DEFAULT;
     }
 }

@@ -19,6 +19,7 @@ export const FilterType = {
     PAST: 'past',
 };
 
-const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'drive']
+const OFFERS_TYPES = ['taxi', 'flight', 'train', 'ship', 'bus', 'transport', 'drive'];
+const OTHER_OFFERS = ['sightseeing', 'check-in', 'restaurant'];
 
-export {MONTH_NAMES, OFFERS_TYPES};
+export {MONTH_NAMES, OFFERS_TYPES, OTHER_OFFERS};

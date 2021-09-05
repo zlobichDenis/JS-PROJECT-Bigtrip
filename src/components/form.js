@@ -1,14 +1,34 @@
-import { MONTH_NAMES , OFFERS_TYPES} from "../const.js";
+import { MONTH_NAMES , OFFERS_TYPES, OTHER_OFFERS} from "../const.js";
 import { offers, pointsOfDestination } from "../data.js";
 import AbstractSmartComponent from "./abstract-smart-component.js";
 import flatpickr from "flatpickr";
 import { formatTime, formatDate } from "../util.js";
 import 'flatpickr/dist/flatpickr.min.css';
 
-const eventsCounter = 1;
 
-const createDestinationOptionTemplate = (name) => {
-  return `<option value="${name}"></option>`
+const parseForm = (data) => {
+  const nameOfDestination = data.get('event-destination');
+  const pointOfDestination = pointsOfDestination.find((point) => point.name === nameOfDestination);
+  const eventType = data.get('event-type');
+  const eventData = offers.find((offer) => offer.type === eventType);
+  eventData.offers.forEach((offer) => {
+    offer.isChecked = data.get(`event-offer-${offer.title.toLowerCase()}`)
+  });
+
+  return {
+    "base_price": data.get('event-price'), // Сумма цент всех офферов путешествия
+    "date_from": data.get('event-start-time'), // функция для определения
+    "date_to": data.get('event-end-time'),
+    "destination": pointOfDestination, // Массив состоящий из все точек путешествий
+    "id": String(new Date() + Math.random), // Счетчик i
+    "is_favorite": data.get('event-favorite'),
+    "offers": eventData,
+  }
+}
+
+const createDestinationOptionTemplate = (name, selectedDestination) => {
+
+  return `<option ${name === selectedDestination ? 'selected="selected"' : ''} value="${name}"></option>`
 }
 
 const createEventTypeEditTemplate = (offerName, offerType) => {
@@ -19,6 +39,15 @@ const createEventTypeEditTemplate = (offerName, offerType) => {
   <label class="event__type-label  event__type-label--${offerName}" for="event-type-${offerName}-1">${offerName}</label>
 </div>`
 };
+
+const createEventOtherTypeEditTemplate = (offerName, offerType) => {
+  const isChecked = offerName === offerType ? 'checked' : '';
+
+  return `<div class="event__type-item">
+  <input id="event-type-${offerName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offerName}" ${isChecked}>
+  <label class="event__type-label  event__type-label--${offerName}" for="event-type-${offerName}-1">${offerName}</label>
+</div>`
+}
 
 const createEditTimeTemplate = (timeFrom, timeTo) => {
 
@@ -36,16 +65,17 @@ const createEditTimeTemplate = (timeFrom, timeTo) => {
 };
 
 const createOneEditOfferTemplate = (offer) => {
-
+  const offerTitle = offer.title.toLowerCase();
   return `<div class="event__offer-selector">
-  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}">
-  <label class="event__offer-label" for="event-offer-${offer.title}-1">
-    <span class="event__offer-title">${offer.title}</span>
+  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offerTitle}-1" type="checkbox" name="event-offer-${offerTitle}" ${offer.isChecked ? 'checked = "true"' : ''}">
+  <label class="event__offer-label" for="event-offer-${offerTitle}-1">
+    <span class="event__offer-title">${offerTitle}</span>
     &plus;
     &euro;&nbsp;<span class="event__offer-price">${offer.price}</span>
   </label>
 </div>`
 };
+
 
 const createEditOffersTemplate = (offers) => {
   const availableOffersTemplate = offers.map((offer) => {
@@ -68,14 +98,18 @@ const createEditFormTemplate = (tripEvent) => {
   const timeFrom = formatDate(dateFrom);
   const timeTo = formatDate(dateTo);
 
+  const destinationName = destination.name;
   const destinationOption = pointsOfDestination.map((point) => {
-    return createDestinationOptionTemplate(point.name);
+    return createDestinationOptionTemplate(point.name, destinationName );
   }).join('\n');
   const editOffersTemplate = createEditOffersTemplate(offers.offers);
   const editTimeTemplate= createEditTimeTemplate(timeFrom, timeTo);
   const eventTypeEditTemplate = OFFERS_TYPES.map((offerName) =>{
     return createEventTypeEditTemplate(offerName, offers.type);
   }).join('\n');
+  const otherEventTypeEditTemplate = OTHER_OFFERS.map((offerName) =>{
+    return createEventOtherTypeEditTemplate(offerName, offers.type);
+  }).join('\n')
 
     return (`<form class="trip-events__item  event  event--edit" action="#" method="post">
     <header class="event__header">
@@ -94,21 +128,7 @@ const createEditFormTemplate = (tripEvent) => {
 
           <fieldset class="event__type-group">
             <legend class="visually-hidden">Activity</legend>
-
-            <div class="event__type-item">
-              <input id="event-type-check-in-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="check-in">
-              <label class="event__type-label  event__type-label--check-in" for="event-type-check-in-1">Check-in</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-sightseeing-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="sightseeing">
-              <label class="event__type-label  event__type-label--sightseeing" for="event-type-sightseeing-1">Sightseeing</label>
-            </div>
-
-            <div class="event__type-item">
-              <input id="event-type-restaurant-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="restaurant">
-              <label class="event__type-label  event__type-label--restaurant" for="event-type-restaurant-1">Restaurant</label>
-            </div>
+              ${otherEventTypeEditTemplate}
           </fieldset>
         </div>
       </div>
@@ -117,7 +137,7 @@ const createEditFormTemplate = (tripEvent) => {
         <label class="event__label  event__type-output" for="event-destination-1">
           ${offers.type} to 
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${destinationOption}
         </datalist>
@@ -132,7 +152,7 @@ const createEditFormTemplate = (tripEvent) => {
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Cancel</button>
+      <button class="event__reset-btn" type="reset">Delete</button>
 
       <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavorite ? 'checked' : ''}>
       <label class="event__favorite-btn" for="event-favorite-1">
@@ -164,6 +184,18 @@ export default class EditForm extends AbstractSmartComponent {
     return createEditFormTemplate(this._tripEvent);
   }
 
+  reset() {
+    this._tripEvent = this._copyEvent;
+    this.rerender();
+  }
+
+
+  getData() {
+    const form = this.getElement();
+    const formData = new FormData(form);
+
+    return parseForm(formData);
+  }
 
   recoveryListeners() {
     this.setSaveBtnClickHandler(this._submitHandler);
@@ -203,6 +235,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   _subscribeOnEvents() {
     const element = this.getElement();
+    this._copyEvent = this._tripEvent;
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
   }
@@ -212,9 +245,12 @@ export default class EditForm extends AbstractSmartComponent {
     this._submitHandler = handler;
   }
 
+  setDeleteBtnHandler(handler) {
+    this.getElement().querySelector('.event__reset-btn').addEventListener('click', handler);
+  }
+
   setFavoritesButton(element) {
     element.querySelector('.event__favorite-btn').addEventListener('click', () => {
-/*       this._onDataChange(this, this._tripEvent, Object.assign({}, this._tripEvent, {is_favorite: !this._tripEvent.is_favorite})) */
       this._tripEvent.is_favorite = !this._tripEvent.is_favorite;
       this.rerender();
     });
@@ -230,4 +266,6 @@ export default class EditForm extends AbstractSmartComponent {
       })
     });
   }
+
+  
 };

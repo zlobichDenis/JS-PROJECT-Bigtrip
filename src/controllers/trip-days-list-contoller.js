@@ -19,14 +19,12 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
     return tripEvents.map((tripEvent) => {
-        const eventController = new EventController(tripEvent, onDataChange, onViewChange);
-        eventController.render(tripEvent, eventsListComponent, Mode.DEFAULT);
+        const eventController = new EventController(tripEvent, eventsListComponent, onDataChange, onViewChange);
+        eventController.render(tripEvent, Mode.DEFAULT);
         
         return eventController;
     });
 };
-
-
 
 
 export default class TripListController {
@@ -83,10 +81,9 @@ export default class TripListController {
     }
 
     _onDataChange(eventController, oldData, newData) {
-        const isSucces = this._eventsModel(oldData.id, newData.id);
-        const container = new TripEventsList.getElement();
+        const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
         if (isSucces) {
-            eventController.render(newData, container, Mode.DEFAULT);
+            eventController.render(newData, Mode.DEFAULT);
         }
     }
 
