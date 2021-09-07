@@ -125,8 +125,8 @@ export default class TripListController {
 
         this._tripEvents = this._eventsModel.getEventsByFilter();
 
-        if (this._eventsModel.activeFilter === FilterType.EVERY && this.activeSortType === SortType.EVERY) {
-            this.renderEventsByDays(this._tripEvents, false);
+        if (this._eventsModel.activeFilter === FilterType.EVERY && this.activeSortType === SortType.EVENT) {
+            this.renderEventsByDays(this._tripEvents, true);
             return;
         }
         

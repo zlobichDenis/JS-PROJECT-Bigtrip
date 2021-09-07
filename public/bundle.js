@@ -10072,8 +10072,8 @@ class TripListController {
 
         this._tripEvents = this._eventsModel.getEventsByFilter();
 
-        if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY && this.activeSortType === _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVERY) {
-            this.renderEventsByDays(this._tripEvents, false);
+        if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY && this.activeSortType === _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT) {
+            this.renderEventsByDays(this._tripEvents, true);
             return;
         }
         
