@@ -9524,6 +9524,8 @@ const createOffersMarkup = (offers) => {
         const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
         const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
         const offersList = createOffersMarkup(offers);
+      
+        const deltaTime = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.getDeltaTime)(dateFrom, dateTo);
         return `<li class="trip-events__item">
             <div class="event">
               <div class="event__type">
@@ -9536,7 +9538,7 @@ const createOffersMarkup = (offers) => {
                   &mdash;
                   <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
                 </p>
-                <p class="event__duration">30M</p>
+                <p class="event__duration">${deltaTime}M</p>
               </div>
       
               <p class="event__price">
@@ -9567,6 +9569,7 @@ class TripDayEvents extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_0__.
     setEditButtonClickHandler(handler) {
       this.getElement().querySelector('.event__rollup-btn').addEventListener('click', handler);
     }
+
 }
 
 /***/ }),
@@ -9710,12 +9713,15 @@ const OTHER_OFFERS = ['sightseeing', 'check-in', 'restaurant'];
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "Mode": () => (/* binding */ Mode),
+/* harmony export */   "EmptyEvent": () => (/* binding */ EmptyEvent),
 /* harmony export */   "default": () => (/* binding */ EventController)
 /* harmony export */ });
 /* harmony import */ var _components_trip_day__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../components/trip-day */ "./src/components/trip-day.js");
 /* harmony import */ var _components_form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../components/form */ "./src/components/form.js");
 /* harmony import */ var _components_trip_event__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/trip-event */ "./src/components/trip-event.js");
 /* harmony import */ var _render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../render */ "./src/render.js");
+/* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util */ "./src/util.js");
+
 
 
 
@@ -9724,6 +9730,17 @@ __webpack_require__.r(__webpack_exports__);
 const Mode = {
     DEFAULT: 'default',
     EDIT: 'edit',
+    ADDING: 'adding',
+}
+
+const EmptyEvent = { 
+    "base_price": '', // Сумма цент всех офферов путешествия
+    "date_from": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomDate)(), // функция для определения
+    "date_to": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomDate)(),
+    "destination": '',
+    "id": String(new Date() + Math.random), // Счетчик i
+    "is_favorite": '',
+    "offers": '', // Массив состоящий из всех офферов каждого ивента
 }
 
 class EventController {
@@ -9766,12 +9783,17 @@ class EventController {
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
             const selectedStartDate = flatpickr.selectedDates[0];
             tripEvent.date_from = selectedStartDate;
-        })
+        });
 
         this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
             const selectedEndDate = flatpickr.selectedDates[0];
             tripEvent.date_to = selectedEndDate;
-        })
+        });
+
+        this._tripEditComponent.setDeleteBtnHandler((evt) => {
+            evt.preventDefault();
+            this._onDataChange(this, tripEvent, null);
+        });
 
         if(oldEventEditComponent && oldEventComponent) {
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, oldEventComponent);
@@ -9903,6 +9925,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onViewChange) => {
     const eventDayComponent = new _components_trip_day_js__WEBPACK_IMPORTED_MODULE_4__.default(tripEvents, indexOfDay);
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(container, eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
@@ -9955,12 +9978,14 @@ class TripListController {
         this._removeEvents();
         this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getEventsByFilter());
         this._tripDays = Object.keys(this._tripEvents);
+        console.log(this._tripEvents);
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
         this._showedEventsControllers = this._tripDays.map((tripDate) => {
             let indexOfDay;
             this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+
             return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
          });
     }
@@ -9972,10 +9997,27 @@ class TripListController {
     }
 
     _onDataChange(eventController, oldData, newData) {
-        const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
-        if (isSucces) {
-            eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
-        }
+        if (oldData === _event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent) {
+            this._creatingTask = null;
+            if (newData === null) {
+                eventController.destroy();
+              this.updateEvents();
+            } else {
+              this._eventsModel.addEvent(newData);
+              eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+
+              this._showedEventsControllers = [].concat(eventController, this._showedEventsControllers);
+            }
+          } else if (newData === null) {
+              this._eventsModel.removeEvent(oldData.id);
+              this.updateEvents();
+          } else {
+            const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
+      
+            if (isSucces) {
+             eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+            }
+          }
     }
 
     _onViewChange() {
@@ -10302,6 +10344,19 @@ class EventsModel {
         return true;
     }
 
+    removeEvent(id) { 
+        const index = this._events.findIndex((it) => it.id === id);
+
+        if (index === -1) {
+            return false;
+        }
+
+        this._events = [].concat(this._events.slice(0, index), this._events.slice(index + 1));
+        this._callHandlers(this._dataChangeHandlers);
+
+        return true;
+    }
+
     _setDataChangeHandlers(handler) {
         this._dataChangeHandlers.push(handler);
     }
@@ -10384,6 +10439,7 @@ const remove = (component) => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "getDeltaTime": () => (/* binding */ getDeltaTime),
 /* harmony export */   "formatTime": () => (/* binding */ formatTime),
 /* harmony export */   "formatDate": () => (/* binding */ formatDate),
 /* harmony export */   "generateEventsByFilter": () => (/* binding */ generateEventsByFilter),
@@ -10421,6 +10477,12 @@ const getRandomDate = () => {
 const castTimeFormat = (value) => {
     return value < 10 ? `0${value}` : String(value);
 };
+
+const getDeltaTime = (start, end) => {
+    const delta = end - start;
+
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(delta, true).format('mm');
+}
 
 const formatTime = (date) => {
     return moment__WEBPACK_IMPORTED_MODULE_0___default()(date, true).format(`hh:mm`);

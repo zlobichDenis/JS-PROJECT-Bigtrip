@@ -11,6 +11,7 @@ import { remove, render, RenderPosition, replace } from "../render.js";
 import { groupByDays } from "../util";
 import EventController, {Mode} from "./event-controller";
 import { FilterType } from "../const";
+import { EmptyEvent } from "./event-controller";
 
 const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onViewChange) => {
     const eventDayComponent = new TripDay(tripEvents, indexOfDay);
@@ -70,6 +71,7 @@ export default class TripListController {
         this._showedEventsControllers = this._tripDays.map((tripDate) => {
             let indexOfDay;
             this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+
             return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
          });
     }
@@ -81,10 +83,27 @@ export default class TripListController {
     }
 
     _onDataChange(eventController, oldData, newData) {
-        const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
-        if (isSucces) {
-            eventController.render(newData, Mode.DEFAULT);
-        }
+        if (oldData === EmptyEvent) {
+            this._creatingTask = null;
+            if (newData === null) {
+                eventController.destroy();
+              this.updateEvents();
+            } else {
+              this._eventsModel.addEvent(newData);
+              eventController.render(newData, Mode.DEFAULT);
+
+              this._showedEventsControllers = [].concat(eventController, this._showedEventsControllers);
+            }
+          } else if (newData === null) {
+              this._eventsModel.removeEvent(oldData.id);
+              this.updateEvents();
+          } else {
+            const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
+      
+            if (isSucces) {
+             eventController.render(newData, Mode.DEFAULT);
+            }
+          }
     }
 
     _onViewChange() {

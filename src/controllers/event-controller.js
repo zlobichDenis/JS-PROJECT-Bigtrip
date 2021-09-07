@@ -2,10 +2,22 @@ import TripDay from "../components/trip-day";
 import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace, remove} from "../render";
+import { getRandomDate } from "../util";
 
 export const Mode = {
     DEFAULT: 'default',
     EDIT: 'edit',
+    ADDING: 'adding',
+}
+
+export const EmptyEvent = { 
+    "base_price": '', // Сумма цент всех офферов путешествия
+    "date_from": getRandomDate(), // функция для определения
+    "date_to": getRandomDate(),
+    "destination": '',
+    "id": String(new Date() + Math.random), // Счетчик i
+    "is_favorite": '',
+    "offers": '', // Массив состоящий из всех офферов каждого ивента
 }
 
 export default class EventController {
@@ -48,12 +60,17 @@ export default class EventController {
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
             const selectedStartDate = flatpickr.selectedDates[0];
             tripEvent.date_from = selectedStartDate;
-        })
+        });
 
         this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
             const selectedEndDate = flatpickr.selectedDates[0];
             tripEvent.date_to = selectedEndDate;
-        })
+        });
+
+        this._tripEditComponent.setDeleteBtnHandler((evt) => {
+            evt.preventDefault();
+            this._onDataChange(this, tripEvent, null);
+        });
 
         if(oldEventEditComponent && oldEventComponent) {
             replace(this._tripEventComponent, oldEventComponent);

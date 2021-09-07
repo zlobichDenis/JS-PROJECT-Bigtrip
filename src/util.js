@@ -24,6 +24,12 @@ const castTimeFormat = (value) => {
     return value < 10 ? `0${value}` : String(value);
 };
 
+export const getDeltaTime = (start, end) => {
+    const delta = end - start;
+
+    return moment(delta, true).format('mm');
+}
+
 export const formatTime = (date) => {
     return moment(date, true).format(`hh:mm`);
 };

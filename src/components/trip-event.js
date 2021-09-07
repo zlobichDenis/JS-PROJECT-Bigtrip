@@ -1,5 +1,5 @@
 import AbstractComponent from "./abstract-component.js";
-import { formatTime } from "../util.js";
+import { formatTime, getDeltaTime } from "../util.js";
 
 const createOffersMarkup = (offers) => {
     return offers.offers.map((offer) => {
@@ -18,6 +18,8 @@ const createOffersMarkup = (offers) => {
         const timeFrom = formatTime(dateFrom);
         const timeTo = formatTime(dateTo);
         const offersList = createOffersMarkup(offers);
+      
+        const deltaTime = getDeltaTime(dateFrom, dateTo);
         return `<li class="trip-events__item">
             <div class="event">
               <div class="event__type">
@@ -30,7 +32,7 @@ const createOffersMarkup = (offers) => {
                   &mdash;
                   <time class="event__end-time" datetime="${dateTo}">${timeTo}</time>
                 </p>
-                <p class="event__duration">30M</p>
+                <p class="event__duration">${deltaTime}M</p>
               </div>
       
               <p class="event__price">
@@ -61,4 +63,5 @@ export default class TripDayEvents extends AbstractComponent {
     setEditButtonClickHandler(handler) {
       this.getElement().querySelector('.event__rollup-btn').addEventListener('click', handler);
     }
+
 }
