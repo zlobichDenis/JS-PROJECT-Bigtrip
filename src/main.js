@@ -30,9 +30,9 @@ filterController.render()
 
 
 const tripDaysList = new TripListController(tripEvents, eventsModel);
-tripDaysList.render();
+tripDaysList.createBoard();
 
-const newEventBtn = document.querySelector('.trip-main__event-add-btn')
+document.querySelector('.trip-main__event-add-btn')
     .addEventListener('click', () => {
         tripDaysList.createEvent();
 })

@@ -9960,6 +9960,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+const renderEvents = (tripEvent, container, onDataChange, onViewChange) => {
+    const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(tripEvent, container, onDataChange, onViewChange);
+    eventController.render(tripEvent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+    
+    return eventController;
+};
+
 const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onViewChange) => {
     const eventDayComponent = new _components_trip_day_js__WEBPACK_IMPORTED_MODULE_4__.default(tripEvents, indexOfDay);
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(container, eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
@@ -9967,10 +9975,7 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
     return tripEvents.map((tripEvent) => {
-        const eventController = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(tripEvent, eventsListComponent, onDataChange, onViewChange);
-        eventController.render(tripEvent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
-        
-        return eventController;
+        return renderEvents(tripEvent, eventsListComponent, onDataChange, onViewChange);
     });
 };
 
@@ -10004,7 +10009,10 @@ class TripListController {
         this._tripEvents = [];
 
         this._eventsModel = eventsModel;
+
         this._showedEventsControllers = [];
+        this._showedTripDays = [];
+
         this._menu = new _components_menu__WEBPACK_IMPORTED_MODULE_0__.default();
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
         this._sort = new _components_sort__WEBPACK_IMPORTED_MODULE_1__.default();
@@ -10020,17 +10028,27 @@ class TripListController {
         this._sort.setActiveSortType(this._onSortTypeChange);
     }
 
-    render() {
+    createBoard() {
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
+        this.renderEventsByDays();
+    }
+
+    getShowedTaskControllers(tripDays) {
+        tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
+    }
+
+    renderEventsByDays() {
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
         this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getAllEvents());
         this._tripDays = Object.keys(this._tripEvents);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
+        this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
+
+        this.getShowedTaskControllers(this._showedTripDays);
     };
 
     createEvent() {
@@ -10044,38 +10062,55 @@ class TripListController {
 
     updateEvents() {
         this._removeEvents();
-        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getEventsByFilter());
+
+        if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY) {
+            this.renderEventsByDays();
+            return;
+        }
+
+        this._tripEvents = this._eventsModel.getEventsByFilter();
         this._tripDays = Object.keys(this._tripEvents);
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
+
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
+        const eventDayComponent = new _components_trip_day_js__WEBPACK_IMPORTED_MODULE_4__.default(this._tripEvents, null);
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._tripDaysList.getElement(), eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
+        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
-            let indexOfDay;
-            this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
+            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
+        })
 
-            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-         });
+        // this._showedEventsControllers = this._tripDays.map((tripDate) => {
+        //     let indexOfDay;
+        //     this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+
+        //     return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
+        //  });
     }
 
     _removeEvents() {
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.remove)(this._tripDaysList);
-        this._showedEventsControllers.forEach((eventControllers) => eventControllers.forEach(eventController => eventController.destroy()));
+        this._showedEventsControllers.forEach((eventController) => eventController.destroy());
         this._showedEventsControllers = [];
     }
 
     _renderEvents(events) {
         this._removeEvents();
-        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(events);
+        this._tripEvents = events;
         this._tripDays = Object.keys(this._tripEvents);
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
-            let indexOfDay;
-            this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+        const eventDayComponent = new _components_trip_day_js__WEBPACK_IMPORTED_MODULE_4__.default(this._tripEvents, null);
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._tripDaysList.getElement(), eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
+        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-         });
+        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
+            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
+        })
     }
 
     _onDataChange(eventController, oldData, newData) {
@@ -10753,9 +10788,9 @@ filterController.render()
 
 
 const tripDaysList = new _controllers_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_0__.default(tripEvents, eventsModel);
-tripDaysList.render();
+tripDaysList.createBoard();
 
-const newEventBtn = document.querySelector('.trip-main__event-add-btn')
+document.querySelector('.trip-main__event-add-btn')
     .addEventListener('click', () => {
         tripDaysList.createEvent();
 })

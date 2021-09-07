@@ -13,6 +13,14 @@ import EventController, {Mode} from "./event-controller";
 import { FilterType } from "../const";
 import { EmptyEvent } from "./event-controller";
 
+
+const renderEvents = (tripEvent, container, onDataChange, onViewChange) => {
+    const eventController = new EventController(tripEvent, container, onDataChange, onViewChange);
+    eventController.render(tripEvent, Mode.DEFAULT);
+    
+    return eventController;
+};
+
 const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onViewChange) => {
     const eventDayComponent = new TripDay(tripEvents, indexOfDay);
     render(container, eventDayComponent, RenderPosition.BEFOREEND);
@@ -20,10 +28,7 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
     return tripEvents.map((tripEvent) => {
-        const eventController = new EventController(tripEvent, eventsListComponent, onDataChange, onViewChange);
-        eventController.render(tripEvent, Mode.DEFAULT);
-        
-        return eventController;
+        return renderEvents(tripEvent, eventsListComponent, onDataChange, onViewChange);
     });
 };
 
@@ -57,7 +62,10 @@ export default class TripListController {
         this._tripEvents = [];
 
         this._eventsModel = eventsModel;
+
         this._showedEventsControllers = [];
+        this._showedTripDays = [];
+
         this._menu = new TripMenu();
         this._tripDaysList = new TripDaysList();
         this._sort = new TripSort();
@@ -73,17 +81,27 @@ export default class TripListController {
         this._sort.setActiveSortType(this._onSortTypeChange);
     }
 
-    render() {
+    createBoard() {
         render(this._container, this._sort, RenderPosition.BEFOREEND);
-        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
 
+        this.renderEventsByDays();
+    }
+
+    getShowedTaskControllers(tripDays) {
+        tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
+    }
+
+    renderEventsByDays() {
+        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
         this._tripEvents = groupByDays(this._eventsModel.getAllEvents());
         this._tripDays = Object.keys(this._tripEvents);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
+        this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
+
+        this.getShowedTaskControllers(this._showedTripDays);
     };
 
     createEvent() {
@@ -97,38 +115,55 @@ export default class TripListController {
 
     updateEvents() {
         this._removeEvents();
-        this._tripEvents = groupByDays(this._eventsModel.getEventsByFilter());
+
+        if (this._eventsModel.activeFilter === FilterType.EVERY) {
+            this.renderEventsByDays();
+            return;
+        }
+
+        this._tripEvents = this._eventsModel.getEventsByFilter();
         this._tripDays = Object.keys(this._tripEvents);
         this._tripDaysList = new TripDaysList();
+
         render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
+        const eventDayComponent = new TripDay(this._tripEvents, null);
+        render(this._tripDaysList.getElement(), eventDayComponent, RenderPosition.BEFOREEND);
+        const eventsListComponent = new TripEventsList();
+        render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
-            let indexOfDay;
-            this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
+            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
+        })
 
-            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-         });
+        // this._showedEventsControllers = this._tripDays.map((tripDate) => {
+        //     let indexOfDay;
+        //     this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+
+        //     return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
+        //  });
     }
 
     _removeEvents() {
         remove(this._tripDaysList);
-        this._showedEventsControllers.forEach((eventControllers) => eventControllers.forEach(eventController => eventController.destroy()));
+        this._showedEventsControllers.forEach((eventController) => eventController.destroy());
         this._showedEventsControllers = [];
     }
 
     _renderEvents(events) {
         this._removeEvents();
-        this._tripEvents = groupByDays(events);
+        this._tripEvents = events;
         this._tripDays = Object.keys(this._tripEvents);
         this._tripDaysList = new TripDaysList();
         render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
 
-        this._showedEventsControllers = this._tripDays.map((tripDate) => {
-            let indexOfDay;
-            this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+        const eventDayComponent = new TripDay(this._tripEvents, null);
+        render(this._tripDaysList.getElement(), eventDayComponent, RenderPosition.BEFOREEND);
+        const eventsListComponent = new TripEventsList();
+        render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
-            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-         });
+        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
+            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
+        })
     }
 
     _onDataChange(eventController, oldData, newData) {
