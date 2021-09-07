@@ -5,10 +5,12 @@ import { getRandomDate } from "../util.js";
 const generateEvent = () => {
     const destination = getRandomArrayElem(pointsOfDestination);
     const offer = getRandomArrayElem(offers); 
+    const dateFrom = getRandomDate();
+    const dateTo = getRandomDate();
     return {
         "base_price": getRandomIntNumber(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": getRandomDate(), // функция для определения
-        "date_to": getRandomDate(),
+        "date_from": dateFrom , // функция для определения
+        "date_to": dateTo,
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": String(new Date() + Math.random), // Счетчик i
         "is_favorite": Math.random() > 0.5,

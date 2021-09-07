@@ -9371,6 +9371,7 @@ class TripMenu extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.defau
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "SortType": () => (/* binding */ SortType),
 /* harmony export */   "default": () => (/* binding */ TripSort)
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
@@ -9378,17 +9379,23 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const SortType = {
+    EVENT: 'sort-event',
+    TIME: 'sort-time',
+    PRICE: 'sort-price',
+}
+
 const createSortTemplate = () => {
     return `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
             <span class="trip-sort__item  trip-sort__item--day">Day</span>
 
             <div class="trip-sort__item  trip-sort__item--event">
-                <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" checked>
+                <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${SortType.EVENT}" checked>
                 <label class="trip-sort__btn" for="sort-event">Event</label>
             </div>
 
             <div class="trip-sort__item  trip-sort__item--time">
-                <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time">
+                <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${SortType.TIME}">
                 <label class="trip-sort__btn" for="sort-time">
                     Time
                     <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -9398,7 +9405,7 @@ const createSortTemplate = () => {
             </div>
 
             <div class="trip-sort__item  trip-sort__item--price">
-                <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price">
+                <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="${SortType.PRICE}">
                 <label class="trip-sort__btn" for="sort-price">
                     Price
                     <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -9413,8 +9420,22 @@ const createSortTemplate = () => {
 };
 
 class TripSort extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default {
+    constructor() {
+        super();
+        this._activeSortType = SortType.EVENT;
+    }
+
     getTemplate() {
       return createSortTemplate();
+    }
+
+    setActiveSortType(handler) {
+        this.getElement().addEventListener('click', (evt) => {
+            this._activeSortType = evt.target.value;
+            if (evt.target.tagName !== 'LABEL') {
+                handler(this._activeSortType);
+            }
+        })
     }
   };
 
@@ -9953,6 +9974,28 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     });
 };
 
+const getSortedEvents = (events, activeSortType) => {
+    const showingEvents = events.slice();
+    let sortedEvents = [];
+
+    switch(activeSortType) {
+        case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT: 
+            return showingEvents;
+
+        case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME: 
+            sortedEvents = showingEvents.sort((a, b) => {
+                let deltaA = a.date_to - a.date_from;
+                let deltaB = b.date_to - b.date_from;
+                return deltaA - deltaB
+            });
+            return sortedEvents;
+        
+        case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE: 
+            sortedEvents = showingEvents.sort((a, b) => a.base_price - b.base_price);
+            return sortedEvents;
+    }
+};
+
 
 class TripListController {
     constructor(container, eventsModel) {
@@ -9970,8 +10013,11 @@ class TripListController {
         this._onDataChange = this._onDataChange.bind(this);
         this._onFilterChange = this._onFilterChange.bind(this);
         this._onViewChange = this._onViewChange.bind(this);
+        this._onSortTypeChange = this._onSortTypeChange.bind(this);
 
         this._eventsModel._setFilterChangeHandlers(this._onFilterChange);
+
+        this._sort.setActiveSortType(this._onSortTypeChange);
     }
 
     render() {
@@ -9992,7 +10038,6 @@ class TripListController {
             return;
         }
 
-        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
         this.creatingEvent = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(_event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent, this._tripDaysList, this._onDataChange, this._onViewChange);
         this.creatingEvent.render(_event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.ADDING);
     }
@@ -10016,6 +10061,21 @@ class TripListController {
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.remove)(this._tripDaysList);
         this._showedEventsControllers.forEach((eventControllers) => eventControllers.forEach(eventController => eventController.destroy()));
         this._showedEventsControllers = [];
+    }
+
+    _renderEvents(events) {
+        this._removeEvents();
+        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(events);
+        this._tripDays = Object.keys(this._tripEvents);
+        this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
+
+        this._showedEventsControllers = this._tripDays.map((tripDate) => {
+            let indexOfDay;
+            this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
+
+            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
+         });
     }
 
     _onDataChange(eventController, oldData, newData) {
@@ -10051,6 +10111,10 @@ class TripListController {
 
     _onFilterChange() {
         this.updateEvents();
+    }
+
+    _onSortTypeChange(activeType) {
+        this._renderEvents(getSortedEvents(this._eventsModel.getEventsByFilter(), activeType));
     }
 }
 
@@ -10286,10 +10350,12 @@ __webpack_require__.r(__webpack_exports__);
 const generateEvent = () => {
     const destination = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination);
     const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
+    const dateFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)();
+    const dateTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)();
     return {
         "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(), // функция для определения
-        "date_to": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)(),
+        "date_from": dateFrom , // функция для определения
+        "date_to": dateTo,
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": String(new Date() + Math.random), // Счетчик i
         "is_favorite": Math.random() > 0.5,
