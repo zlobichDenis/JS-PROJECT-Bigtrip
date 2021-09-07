@@ -57,6 +57,11 @@ export default class EventsModel {
         return true;
     }
 
+    addEvent(newData) { 
+        this._events = [].concat(newData,this._events);
+        this._callHandlers(this._dataChangeHandlers);
+    }
+
     _setDataChangeHandlers(handler) {
         this._dataChangeHandlers.push(handler);
     }

@@ -2,7 +2,9 @@ import TripDay from "../components/trip-day";
 import EditForm from "../components/form";
 import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace, remove} from "../render";
-import { getRandomDate } from "../util";
+import { getRandomDate, getRandomArrayElem } from "../util";
+import { offers, pointsOfDestination } from "../data";
+
 
 export const Mode = {
     DEFAULT: 'default',
@@ -11,13 +13,13 @@ export const Mode = {
 }
 
 export const EmptyEvent = { 
-    "base_price": '', // Сумма цент всех офферов путешествия
+    "base_price": 199, // Сумма цент всех офферов путешествия
     "date_from": getRandomDate(), // функция для определения
     "date_to": getRandomDate(),
-    "destination": '',
+    "destination": getRandomArrayElem(pointsOfDestination),
     "id": String(new Date() + Math.random), // Счетчик i
-    "is_favorite": '',
-    "offers": '', // Массив состоящий из всех офферов каждого ивента
+    "is_favorite": false,
+    "offers": getRandomArrayElem(offers), // Массив состоящий из всех офферов каждого ивента
 }
 
 export default class EventController {
@@ -71,6 +73,11 @@ export default class EventController {
             evt.preventDefault();
             this._onDataChange(this, tripEvent, null);
         });
+
+        if (this._mode === Mode.ADDING) {
+            render(this._container.getElement(), this._tripEditComponent, RenderPosition.AFTERBEGIN);
+            return;
+          }
 
         if(oldEventEditComponent && oldEventComponent) {
             replace(this._tripEventComponent, oldEventComponent);

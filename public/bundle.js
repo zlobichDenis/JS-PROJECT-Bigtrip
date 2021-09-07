@@ -9340,15 +9340,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 const createMenuTemplate = () => { 
     return `<nav class="trip-controls__trip-tabs  trip-tabs">
             <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
-            <a class="trip-tabs__btn" href="#">Stats</a>
         </nav>
     `
 };
 
 class TripMenu extends _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__.default{
+    constructor() {
+      super();
+      this.activeComponent = null;
+    }
+
     getTemplate() {
       return createMenuTemplate();
     }
@@ -9721,6 +9726,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_trip_event__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/trip-event */ "./src/components/trip-event.js");
 /* harmony import */ var _render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../render */ "./src/render.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util */ "./src/util.js");
+/* harmony import */ var _data__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../data */ "./src/data.js");
+
+
 
 
 
@@ -9734,13 +9742,13 @@ const Mode = {
 }
 
 const EmptyEvent = { 
-    "base_price": '', // Сумма цент всех офферов путешествия
+    "base_price": 199, // Сумма цент всех офферов путешествия
     "date_from": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomDate)(), // функция для определения
     "date_to": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomDate)(),
-    "destination": '',
+    "destination": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomArrayElem)(_data__WEBPACK_IMPORTED_MODULE_5__.pointsOfDestination),
     "id": String(new Date() + Math.random), // Счетчик i
-    "is_favorite": '',
-    "offers": '', // Массив состоящий из всех офферов каждого ивента
+    "is_favorite": false,
+    "offers": (0,_util__WEBPACK_IMPORTED_MODULE_4__.getRandomArrayElem)(_data__WEBPACK_IMPORTED_MODULE_5__.offers), // Массив состоящий из всех офферов каждого ивента
 }
 
 class EventController {
@@ -9795,6 +9803,11 @@ class EventController {
             this._onDataChange(this, tripEvent, null);
         });
 
+        if (this._mode === Mode.ADDING) {
+            (0,_render__WEBPACK_IMPORTED_MODULE_3__.render)(this._container.getElement(), this._tripEditComponent, _render__WEBPACK_IMPORTED_MODULE_3__.RenderPosition.AFTERBEGIN);
+            return;
+          }
+
         if(oldEventEditComponent && oldEventComponent) {
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEventComponent, oldEventComponent);
             (0,_render__WEBPACK_IMPORTED_MODULE_3__.replace)(this._tripEditComponent, oldEventEditComponent);
@@ -9833,10 +9846,10 @@ class EventController {
 
 /***/ }),
 
-/***/ "./src/controllers/filters.js":
-/*!************************************!*\
-  !*** ./src/controllers/filters.js ***!
-  \************************************/
+/***/ "./src/controllers/filters-controller.js":
+/*!***********************************************!*\
+  !*** ./src/controllers/filters-controller.js ***!
+  \***********************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -9974,11 +9987,20 @@ class TripListController {
         });
     };
 
+    createEvent() {
+        if (this.creatingEvent) {
+            return;
+        }
+
+        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
+        this.creatingEvent = new _event_controller__WEBPACK_IMPORTED_MODULE_10__.default(_event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent, this._tripDaysList, this._onDataChange, this._onViewChange);
+        this.creatingEvent.render(_event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.ADDING);
+    }
+
     updateEvents() {
         this._removeEvents();
         this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getEventsByFilter());
         this._tripDays = Object.keys(this._tripEvents);
-        console.log(this._tripEvents);
         this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
@@ -9998,20 +10020,19 @@ class TripListController {
 
     _onDataChange(eventController, oldData, newData) {
         if (oldData === _event_controller__WEBPACK_IMPORTED_MODULE_10__.EmptyEvent) {
-            this._creatingTask = null;
+            this.creatingEvent = null;
             if (newData === null) {
                 eventController.destroy();
-              this.updateEvents();
+                this.updateEvents();
             } else {
-              this._eventsModel.addEvent(newData);
-              eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
-
-              this._showedEventsControllers = [].concat(eventController, this._showedEventsControllers);
+                this._eventsModel.addEvent(newData);
+                eventController.render(newData, _event_controller__WEBPACK_IMPORTED_MODULE_10__.Mode.DEFAULT);
+                this.updateEvents();
             }
-          } else if (newData === null) {
+        } else if (newData === null) {
               this._eventsModel.removeEvent(oldData.id);
               this.updateEvents();
-          } else {
+        } else {
             const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
       
             if (isSucces) {
@@ -10357,6 +10378,11 @@ class EventsModel {
         return true;
     }
 
+    addEvent(newData) { 
+        this._events = [].concat(newData,this._events);
+        this._callHandlers(this._dataChangeHandlers);
+    }
+
     _setDataChangeHandlers(handler) {
         this._dataChangeHandlers.push(handler);
     }
@@ -10625,7 +10651,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_menu_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/menu.js */ "./src/components/menu.js");
 /* harmony import */ var _components_trip_filters_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/trip-filters.js */ "./src/components/trip-filters.js");
 /* harmony import */ var _models_events_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./models/events.js */ "./src/models/events.js");
-/* harmony import */ var _controllers_filters_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./controllers/filters.js */ "./src/controllers/filters.js");
+/* harmony import */ var _controllers_filters_controller_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./controllers/filters-controller.js */ "./src/controllers/filters-controller.js");
 /* harmony import */ var _render_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./render.js */ "./src/render.js");
 /* harmony import */ var _mock_events_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./mock/events.js */ "./src/mock/events.js");
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./util.js */ "./src/util.js");
@@ -10653,13 +10679,20 @@ const sortedEvents = (0,_util_js__WEBPACK_IMPORTED_MODULE_7__.sortDatesAscending
 const eventsModel = new _models_events_js__WEBPACK_IMPORTED_MODULE_3__.default();
 eventsModel.setEvents(sortedEvents);
 
-(0,_render_js__WEBPACK_IMPORTED_MODULE_5__.render)(tripControls, new _components_menu_js__WEBPACK_IMPORTED_MODULE_1__.default(), _render_js__WEBPACK_IMPORTED_MODULE_5__.RenderPosition.AFTERBEGIN);
-const filterController = new _controllers_filters_js__WEBPACK_IMPORTED_MODULE_4__.default(tripControls, eventsModel);
+const siteMenu = new _components_menu_js__WEBPACK_IMPORTED_MODULE_1__.default();
+
+(0,_render_js__WEBPACK_IMPORTED_MODULE_5__.render)(tripControls, siteMenu, _render_js__WEBPACK_IMPORTED_MODULE_5__.RenderPosition.AFTERBEGIN);
+const filterController = new _controllers_filters_controller_js__WEBPACK_IMPORTED_MODULE_4__.default(tripControls, eventsModel);
 filterController.render()
 
 
 const tripDaysList = new _controllers_trip_days_list_contoller_js__WEBPACK_IMPORTED_MODULE_0__.default(tripEvents, eventsModel);
 tripDaysList.render();
+
+const newEventBtn = document.querySelector('.trip-main__event-add-btn')
+    .addEventListener('click', () => {
+        tripDaysList.createEvent();
+})
 
 
 

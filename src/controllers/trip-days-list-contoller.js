@@ -61,6 +61,16 @@ export default class TripListController {
         });
     };
 
+    createEvent() {
+        if (this.creatingEvent) {
+            return;
+        }
+
+        const eventsListComponent = new TripEventsList();
+        this.creatingEvent = new EventController(EmptyEvent, this._tripDaysList, this._onDataChange, this._onViewChange);
+        this.creatingEvent.render(EmptyEvent, Mode.ADDING);
+    }
+
     updateEvents() {
         this._removeEvents();
         this._tripEvents = groupByDays(this._eventsModel.getEventsByFilter());
@@ -84,20 +94,19 @@ export default class TripListController {
 
     _onDataChange(eventController, oldData, newData) {
         if (oldData === EmptyEvent) {
-            this._creatingTask = null;
+            this.creatingEvent = null;
             if (newData === null) {
                 eventController.destroy();
-              this.updateEvents();
+                this.updateEvents();
             } else {
-              this._eventsModel.addEvent(newData);
-              eventController.render(newData, Mode.DEFAULT);
-
-              this._showedEventsControllers = [].concat(eventController, this._showedEventsControllers);
+                this._eventsModel.addEvent(newData);
+                eventController.render(newData, Mode.DEFAULT);
+                this.updateEvents();
             }
-          } else if (newData === null) {
+        } else if (newData === null) {
               this._eventsModel.removeEvent(oldData.id);
               this.updateEvents();
-          } else {
+        } else {
             const isSucces = this._eventsModel.updateEvent(oldData.id, newData);
       
             if (isSucces) {
