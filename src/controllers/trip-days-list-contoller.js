@@ -61,7 +61,7 @@ export default class TripListController {
         this._container = container;
         this._tripEvents = [];
 
-        this.activeFilterType = FilterType.EVERY;
+        // this.activeFilterType = FilterType.EVERY;
         this.activeSortType = SortType.EVENT;
 
         this._eventsModel = eventsModel;
@@ -125,8 +125,8 @@ export default class TripListController {
 
         this._tripEvents = this._eventsModel.getEventsByFilter();
 
-        if (this._eventsModel.activeFilter === FilterType.EVERY) {
-            this.renderEventsByDays(this._tripEvents, true);
+        if (this._eventsModel.activeFilter === FilterType.EVERY && this.activeSortType === SortType.EVERY) {
+            this.renderEventsByDays(this._tripEvents, false);
             return;
         }
         
@@ -195,16 +195,19 @@ export default class TripListController {
         let sortedEvents = [];
         switch(activeType) {
             case SortType.EVENT: 
+                this.activeSortType = SortType.EVENT; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.EVENT);
                 this.renderEventsByDays(sortedEvents, true);
                 return;
             
-            case SortType.TIME:  
+            case SortType.TIME: 
+                this.activeSortType = SortType.TIME; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.TIME);
                 this._renderEvents(sortedEvents);
                 return;
 
             case SortType.PRICE:
+                this.activeSortType = SortType.PRICE; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.PRICE);
                 this._renderEvents(sortedEvents);
         }

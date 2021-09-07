@@ -10008,7 +10008,7 @@ class TripListController {
         this._container = container;
         this._tripEvents = [];
 
-        this.activeFilterType = _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY;
+        // this.activeFilterType = FilterType.EVERY;
         this.activeSortType = _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT;
 
         this._eventsModel = eventsModel;
@@ -10072,8 +10072,8 @@ class TripListController {
 
         this._tripEvents = this._eventsModel.getEventsByFilter();
 
-        if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY) {
-            this.renderEventsByDays(this._tripEvents, true);
+        if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY && this.activeSortType === _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVERY) {
+            this.renderEventsByDays(this._tripEvents, false);
             return;
         }
         
@@ -10142,16 +10142,19 @@ class TripListController {
         let sortedEvents = [];
         switch(activeType) {
             case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT: 
+                this.activeSortType = _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT);
                 this.renderEventsByDays(sortedEvents, true);
                 return;
             
-            case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME:  
+            case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME: 
+                this.activeSortType = _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME);
                 this._renderEvents(sortedEvents);
                 return;
 
             case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE:
+                this.activeSortType = _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE; 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE);
                 this._renderEvents(sortedEvents);
         }
