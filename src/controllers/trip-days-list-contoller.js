@@ -61,6 +61,9 @@ export default class TripListController {
         this._container = container;
         this._tripEvents = [];
 
+        this.activeFilterType = FilterType.EVERY;
+        this.activeSortType = SortType.EVENT;
+
         this._eventsModel = eventsModel;
 
         this._showedEventsControllers = [];
@@ -84,20 +87,24 @@ export default class TripListController {
     createBoard() {
         render(this._container, this._sort, RenderPosition.BEFOREEND);
 
-        this.renderEventsByDays();
+        this.renderEventsByDays(this._eventsModel.getAllEvents());
     }
 
     getShowedTaskControllers(tripDays) {
         tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
     }
 
-    renderEventsByDays() {
-        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
-        this._tripEvents = groupByDays(this._eventsModel.getAllEvents());
+    renderEventsByDays(events, isShowingDayCount) {
+        if (this._showedEventsControllers) {
+            this._removeEvents();
+        }
+        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);                   
+        this._tripEvents = groupByDays(events);
         this._tripDays = Object.keys(this._tripEvents);
 
         this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
+           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : null;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
 
@@ -116,31 +123,14 @@ export default class TripListController {
     updateEvents() {
         this._removeEvents();
 
+        this._tripEvents = this._eventsModel.getEventsByFilter();
+
         if (this._eventsModel.activeFilter === FilterType.EVERY) {
-            this.renderEventsByDays();
+            this.renderEventsByDays(this._tripEvents, true);
             return;
         }
-
-        this._tripEvents = this._eventsModel.getEventsByFilter();
-        this._tripDays = Object.keys(this._tripEvents);
-        this._tripDaysList = new TripDaysList();
-
-        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
-        const eventDayComponent = new TripDay(this._tripEvents, null);
-        render(this._tripDaysList.getElement(), eventDayComponent, RenderPosition.BEFOREEND);
-        const eventsListComponent = new TripEventsList();
-        render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
-
-        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
-            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
-        })
-
-        // this._showedEventsControllers = this._tripDays.map((tripDate) => {
-        //     let indexOfDay;
-        //     this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
-
-        //     return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-        //  });
+        
+        this._renderEvents(this._tripEvents);
     }
 
     _removeEvents() {
@@ -202,6 +192,21 @@ export default class TripListController {
     }
 
     _onSortTypeChange(activeType) {
-        this._renderEvents(getSortedEvents(this._eventsModel.getEventsByFilter(), activeType));
+        let sortedEvents = [];
+        switch(activeType) {
+            case SortType.EVENT: 
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.EVENT);
+                this.renderEventsByDays(sortedEvents, null);
+                return;
+            
+            case SortType.TIME:  
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.TIME);
+                this._renderEvents(sortedEvents);
+                return;
+
+            case SortType.PRICE:
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.PRICE);
+                this._renderEvents(sortedEvents);
+        }
     }
 }

@@ -43,24 +43,21 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+var renderEvents = function renderEvents(tripEvent, container, onDataChange, onViewChange) {
+  var eventController = new _eventController["default"](tripEvent, container, onDataChange, onViewChange);
+  eventController.render(tripEvent, _eventController.Mode.DEFAULT);
+  return eventController;
+};
+
 var _renderEventsByDays = function renderEventsByDays(tripEvents, container, indexOfDay, onDataChange, onViewChange) {
   var eventDayComponent = new _tripDay["default"](tripEvents, indexOfDay);
   (0, _render.render)(container, eventDayComponent, _render.RenderPosition.BEFOREEND);
   var eventsListComponent = new _tripEventsList["default"]();
   (0, _render.render)(eventDayComponent.getElement(), eventsListComponent, _render.RenderPosition.BEFOREEND);
   return tripEvents.map(function (tripEvent) {
-    // const eventController = new EventController(tripEvent, eventsListComponent, onDataChange, onViewChange);
-    // eventController.render(tripEvent, Mode.DEFAULT);
-    // return eventController;
     return renderEvents(tripEvent, eventsListComponent, onDataChange, onViewChange);
   });
 };
-
-var renderEvents = (tripEvent, container, indexOfDay, onDataChange, function (onViewChange) {
-  var eventController = new _eventController["default"](tripEvent, container, onDataChange, onViewChange);
-  eventController.render(tripEvent, _eventController.Mode.DEFAULT);
-  return eventController;
-});
 
 var getSortedEvents = function getSortedEvents(events, activeSortType) {
   var showingEvents = events.slice();
@@ -115,8 +112,7 @@ function () {
     key: "createBoard",
     value: function createBoard() {
       (0, _render.render)(this._container, this._sort, _render.RenderPosition.BEFOREEND);
-      (0, _render.render)(this._container, this._tripDaysList, _render.RenderPosition.BEFOREEND);
-      this.renderEventsByDays();
+      this.renderEventsByDays(this._eventsModel.getAllEvents());
     }
   }, {
     key: "getShowedTaskControllers",
@@ -131,10 +127,15 @@ function () {
     }
   }, {
     key: "renderEventsByDays",
-    value: function renderEventsByDays() {
+    value: function renderEventsByDays(events) {
       var _this2 = this;
 
-      this._tripEvents = (0, _util.groupByDays)(this._eventsModel.getAllEvents());
+      if (this._showedEventsControllers) {
+        this._removeEvents();
+      }
+
+      (0, _render.render)(this._container, this._tripDaysList, _render.RenderPosition.BEFOREEND);
+      this._tripEvents = (0, _util.groupByDays)(events);
       this._tripDays = Object.keys(this._tripEvents);
       this._showedTripDays = this._tripDays.map(function (tripDate) {
         var indexOfDay = _this2._tripDays.indexOf(tripDate) + 1;
@@ -160,11 +161,16 @@ function () {
       this._removeEvents();
 
       this._tripEvents = this._eventsModel.getEventsByFilter();
-      this._tripDays = Object.keys(this._tripEvents);
+
+      if (this._eventsModel.activeFilter === _const.FilterType.EVERY) {
+        this.renderEventsByDays(this._tripEvents);
+        return;
+      }
+
       this._tripDaysList = new _tripDaysList["default"]();
       (0, _render.render)(this._container, this._tripDaysList, _render.RenderPosition.BEFOREEND);
-      var eventDayComponent = new _tripDay["default"](tripEvents, indexOfDay);
-      (0, _render.render)(container, eventDayComponent, _render.RenderPosition.BEFOREEND);
+      var eventDayComponent = new _tripDay["default"](this._tripEvents, null);
+      (0, _render.render)(this._tripDaysList.getElement(), eventDayComponent, _render.RenderPosition.BEFOREEND);
       var eventsListComponent = new _tripEventsList["default"]();
       (0, _render.render)(eventDayComponent.getElement(), eventsListComponent, _render.RenderPosition.BEFOREEND);
       this._showedEventsControllers = this._tripEvents.map(function (tripEvent) {
@@ -193,14 +199,16 @@ function () {
 
       this._removeEvents();
 
-      this._tripEvents = (0, _util.groupByDays)(events);
+      this._tripEvents = events;
       this._tripDays = Object.keys(this._tripEvents);
       this._tripDaysList = new _tripDaysList["default"]();
       (0, _render.render)(this._container, this._tripDaysList, _render.RenderPosition.BEFOREEND);
-      this._showedTripDays = this._tripDays.map(function (tripDate) {
-        var indexOfDay;
-        _this4._eventsModel.activeFilter === _const.FilterType.EVERY ? indexOfDay = _this4._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
-        return _renderEventsByDays(_this4._tripEvents[tripDate], _this4._tripDaysList.getElement(), indexOfDay, _this4._onDataChange, _this4._onViewChange);
+      var eventDayComponent = new _tripDay["default"](this._tripEvents, null);
+      (0, _render.render)(this._tripDaysList.getElement(), eventDayComponent, _render.RenderPosition.BEFOREEND);
+      var eventsListComponent = new _tripEventsList["default"]();
+      (0, _render.render)(eventDayComponent.getElement(), eventsListComponent, _render.RenderPosition.BEFOREEND);
+      this._showedEventsControllers = this._tripEvents.map(function (tripEvent) {
+        return renderEvents(tripEvent, eventsListComponent, _this4._onDataChange, _this4._onViewChange);
       });
     }
   }, {
@@ -247,7 +255,27 @@ function () {
   }, {
     key: "_onSortTypeChange",
     value: function _onSortTypeChange(activeType) {
-      this._renderEvents(getSortedEvents(this._eventsModel.getEventsByFilter(), activeType));
+      var sortedEvents = [];
+
+      switch (activeType) {
+        case _sort.SortType.EVENT:
+          sortedEvents = getSortedEvents(this._eventsModel.getAllEvents(), _sort.SortType.EVENT);
+          this.renderEventsByDays(sortedEvents);
+          return;
+
+        case _sort.SortType.TIME:
+          sortedEvents = getSortedEvents(this._eventsModel.getAllEvents(), _sort.SortType.TIME);
+
+          this._renderEvents(sortedEvents);
+
+          return;
+
+        case _sort.SortType.PRICE:
+          sortedEvents = getSortedEvents(this._eventsModel.getAllEvents(), _sort.SortType.PRICE);
+
+          this._renderEvents(sortedEvents);
+
+      }
     }
   }]);
 

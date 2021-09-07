@@ -10008,6 +10008,9 @@ class TripListController {
         this._container = container;
         this._tripEvents = [];
 
+        this.activeFilterType = _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY;
+        this.activeSortType = _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT;
+
         this._eventsModel = eventsModel;
 
         this._showedEventsControllers = [];
@@ -10031,20 +10034,24 @@ class TripListController {
     createBoard() {
         (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._sort, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
-        this.renderEventsByDays();
+        this.renderEventsByDays(this._eventsModel.getAllEvents());
     }
 
     getShowedTaskControllers(tripDays) {
         tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
     }
 
-    renderEventsByDays() {
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
-        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(this._eventsModel.getAllEvents());
+    renderEventsByDays(events, isShowingDayCount) {
+        if (this._showedEventsControllers) {
+            this._removeEvents();
+        }
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);                   
+        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(events);
         this._tripDays = Object.keys(this._tripEvents);
 
         this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
+           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : null;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
 
@@ -10063,31 +10070,25 @@ class TripListController {
     updateEvents() {
         this._removeEvents();
 
+        this._tripEvents = this._eventsModel.getEventsByFilter();
+
         if (this._eventsModel.activeFilter === _const__WEBPACK_IMPORTED_MODULE_11__.FilterType.EVERY) {
-            this.renderEventsByDays();
+            this.renderEventsByDays(this._tripEvents, true);
             return;
         }
+        
+        this._renderEvents(this._tripEvents);
+        // this._tripDaysList = new TripDaysList();
 
-        this._tripEvents = this._eventsModel.getEventsByFilter();
-        this._tripDays = Object.keys(this._tripEvents);
-        this._tripDaysList = new _components_trip_days_list__WEBPACK_IMPORTED_MODULE_2__.default();
+        // render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
+        // const eventDayComponent = new TripDay(this._tripEvents, null);
+        // render(this._tripDaysList.getElement(), eventDayComponent, RenderPosition.BEFOREEND);
+        // const eventsListComponent = new TripEventsList();
+        // render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
-        const eventDayComponent = new _components_trip_day_js__WEBPACK_IMPORTED_MODULE_4__.default(this._tripEvents, null);
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._tripDaysList.getElement(), eventDayComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
-        const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
-
-        this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
-            return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
-        })
-
-        // this._showedEventsControllers = this._tripDays.map((tripDate) => {
-        //     let indexOfDay;
-        //     this._eventsModel.activeFilter === FilterType.EVERY ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
-
-        //     return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
-        //  });
+        // this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
+        //     return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
+        // })
     }
 
     _removeEvents() {
@@ -10149,7 +10150,22 @@ class TripListController {
     }
 
     _onSortTypeChange(activeType) {
-        this._renderEvents(getSortedEvents(this._eventsModel.getEventsByFilter(), activeType));
+        let sortedEvents = [];
+        switch(activeType) {
+            case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT: 
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT);
+                this.renderEventsByDays(sortedEvents, null);
+                return;
+            
+            case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME:  
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME);
+                this._renderEvents(sortedEvents);
+                return;
+
+            case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE:
+                sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.PRICE);
+                this._renderEvents(sortedEvents);
+        }
     }
 }
 
