@@ -94,7 +94,7 @@ export default class TripListController {
         tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
     }
 
-    renderEventsByDays(events, isShowingDayCount) {
+    renderEventsByDays(events, isShowingDayCount = true) {
         if (this._showedEventsControllers) {
             this._removeEvents();
         }
@@ -104,7 +104,7 @@ export default class TripListController {
 
         this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
-           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : null;
+           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
 
@@ -196,7 +196,7 @@ export default class TripListController {
         switch(activeType) {
             case SortType.EVENT: 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), SortType.EVENT);
-                this.renderEventsByDays(sortedEvents, null);
+                this.renderEventsByDays(sortedEvents, true);
                 return;
             
             case SortType.TIME:  

@@ -10041,7 +10041,7 @@ class TripListController {
         tripDays.forEach((day) => day.forEach((eventController) => this._showedEventsControllers.push(eventController)));
     }
 
-    renderEventsByDays(events, isShowingDayCount) {
+    renderEventsByDays(events, isShowingDayCount = true) {
         if (this._showedEventsControllers) {
             this._removeEvents();
         }
@@ -10051,7 +10051,7 @@ class TripListController {
 
         this._showedTripDays = this._tripDays.map((tripDate) => {
            let indexOfDay = this._tripDays.indexOf(tripDate) + 1;
-           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : null;
+           isShowingDayCount ? indexOfDay = this._tripDays.indexOf(tripDate) + 1 : indexOfDay = null;
            return renderEventsByDays(this._tripEvents[tripDate], this._tripDaysList.getElement(), indexOfDay, this._onDataChange, this._onViewChange);
         });
 
@@ -10078,17 +10078,6 @@ class TripListController {
         }
         
         this._renderEvents(this._tripEvents);
-        // this._tripDaysList = new TripDaysList();
-
-        // render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);
-        // const eventDayComponent = new TripDay(this._tripEvents, null);
-        // render(this._tripDaysList.getElement(), eventDayComponent, RenderPosition.BEFOREEND);
-        // const eventsListComponent = new TripEventsList();
-        // render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
-
-        // this._showedEventsControllers = this._tripEvents.map((tripEvent) => {
-        //     return renderEvents(tripEvent, eventsListComponent, this._onDataChange, this._onViewChange);
-        // })
     }
 
     _removeEvents() {
@@ -10154,7 +10143,7 @@ class TripListController {
         switch(activeType) {
             case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT: 
                 sortedEvents = getSortedEvents(this._eventsModel.getEventsByFilter(), _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.EVENT);
-                this.renderEventsByDays(sortedEvents, null);
+                this.renderEventsByDays(sortedEvents, true);
                 return;
             
             case _components_sort__WEBPACK_IMPORTED_MODULE_1__.SortType.TIME:  
