@@ -4,6 +4,7 @@ import TripDayEvents from "../components/trip-event";
 import { render, RenderPosition, replace, remove} from "../render";
 import { getRandomDate, getRandomArrayElem } from "../util";
 import { offers, pointsOfDestination } from "../data";
+import moment from "moment";
 
 
 export const Mode = {
@@ -65,7 +66,7 @@ export default class EventController {
         });
 
         this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
-            const selectedEndDate = flatpickr.selectedDates[0];
+            const selectedEndDate = moment(flatpickr.selectedDates[0]);
             tripEvent.date_to = selectedEndDate;
         });
 

@@ -4,6 +4,7 @@ import AbstractSmartComponent from "./abstract-smart-component.js";
 import flatpickr from "flatpickr";
 import { formatTime, formatDate } from "../util.js";
 import 'flatpickr/dist/flatpickr.min.css';
+import moment from "moment";
 
 
 const parseForm = (data) => {
@@ -218,7 +219,7 @@ export default class EditForm extends AbstractSmartComponent {
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
     this._startFlatpickr = flatpickr(dateFromElement, {
-      altFormat: 'd/m/Y H:i',
+      // altFormat: moment().format('d/m/Y H:i'),
       altInput: true,
       allowInput: true,
       enableTime: true,
@@ -227,7 +228,7 @@ export default class EditForm extends AbstractSmartComponent {
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
     this._endFlatpickr = flatpickr(dateToElement, {
-      altFormat: 'd/m/Y H:i',
+      // altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,

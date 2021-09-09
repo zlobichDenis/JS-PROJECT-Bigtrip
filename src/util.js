@@ -17,7 +17,7 @@ const getRandomDate = () => {
 
     targetDate.setDate(targetDate.getDate() + diffValue);
     
-    return targetDate
+    return moment(targetDate);
 };
 
 const castTimeFormat = (value) => {
@@ -25,22 +25,22 @@ const castTimeFormat = (value) => {
 };
 
 export const getDeltaTime = (start, end) => {
-    const delta = end - start;
 
-    return moment(delta, true).format('mm');
+    return start.diff(end, 'minutes');
 }
 
 export const formatTime = (date) => {
-    return moment(date, true).format(`hh:mm`);
+
+    return moment(date).format('hh:mm')
 };
     
 export const formatDate = (date) => {
-    return moment(date).format(`DD/MM/YY hh:mm`);
+    return moment(date, true).format(`DD/MM/YY hh:mm`);
 };
 
 const sortDatesAscending = (arr) => {
     return arr.sort(function(a,b){
-        return a.date_from.getTime() - b.date_from.getTime()
+        return a.date_from.milliseconds - b.date_from.milliseconds
       }); 
 };
 

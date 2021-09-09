@@ -1,13 +1,14 @@
 import { MONTH_NAMES } from "../const.js";
 import AbstractComponent from "./abstract-component.js";
+import moment from "moment";
 
 
 const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
   const firstDay = eventsByDate[0];
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
-  const monthOfTravel = MONTH_NAMES[new Date(dateFrom).getMonth()];
-  const dayOfTravel = new Date(dateFrom).getDate();
+  const monthOfTravel = moment(dateFrom).format('D');
+  const dayOfTravel = moment(dateFrom).format('MMMM');
 
     return `<li class="trip-days__item  day">
         <div class="day__info">

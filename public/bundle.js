@@ -9028,6 +9028,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var flatpickr__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! flatpickr */ "./node_modules/flatpickr/dist/esm/index.js");
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
 /* harmony import */ var flatpickr_dist_flatpickr_min_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! flatpickr/dist/flatpickr.min.css */ "./node_modules/flatpickr/dist/flatpickr.min.css");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_6__);
+
 
 
 
@@ -9248,7 +9251,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
     this._startFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
-      altFormat: 'd/m/Y H:i',
+      // altFormat: moment().format('d/m/Y H:i'),
       altInput: true,
       allowInput: true,
       enableTime: true,
@@ -9257,7 +9260,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
     this._endFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
-      altFormat: 'd/m/Y H:i',
+      // altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
@@ -9455,6 +9458,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
 /* harmony import */ var _abstract_component_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./abstract-component.js */ "./src/components/abstract-component.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_2__);
+
 
 
 
@@ -9463,8 +9469,8 @@ const createTripDayTemplate = (eventsByDate, counterOfDay) => {
 
   const firstDay = eventsByDate[0];
   const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = firstDay;
-  const monthOfTravel = _const_js__WEBPACK_IMPORTED_MODULE_0__.MONTH_NAMES[new Date(dateFrom).getMonth()];
-  const dayOfTravel = new Date(dateFrom).getDate();
+  const monthOfTravel = moment__WEBPACK_IMPORTED_MODULE_2___default()(dateFrom).format('D');
+  const dayOfTravel = moment__WEBPACK_IMPORTED_MODULE_2___default()(dateFrom).format('MMMM');
 
     return `<li class="trip-days__item  day">
         <div class="day__info">
@@ -9547,10 +9553,10 @@ const createOffersMarkup = (offers) => {
   
   const createTripEventMarkup = (tripEvent) => {
         const {base_price: basePrice, offers, date_to: dateTo, date_from: dateFrom, destination, is_favorite: isFavorite} = tripEvent;
+
         const timeFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateFrom);
         const timeTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.formatTime)(dateTo);
         const offersList = createOffersMarkup(offers);
-      
         const deltaTime = (0,_util_js__WEBPACK_IMPORTED_MODULE_1__.getDeltaTime)(dateFrom, dateTo);
         return `<li class="trip-events__item">
             <div class="event">
@@ -9748,6 +9754,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _render__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../render */ "./src/render.js");
 /* harmony import */ var _util__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util */ "./src/util.js");
 /* harmony import */ var _data__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../data */ "./src/data.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_6__);
+
 
 
 
@@ -9815,7 +9824,7 @@ class EventController {
         });
 
         this._tripEditComponent.setOnEndDateChange((flatpickr, tripEvent) => {
-            const selectedEndDate = flatpickr.selectedDates[0];
+            const selectedEndDate = moment__WEBPACK_IMPORTED_MODULE_6___default()(flatpickr.selectedDates[0]);
             tripEvent.date_to = selectedEndDate;
         });
 
@@ -10127,11 +10136,7 @@ class TripListController {
     }
 
     _onViewChange() {
-        this._showedEventsControllers.forEach((day) => {
-            day.forEach((tripEvent) => {
-                tripEvent.setDefaultView(tripEvent);
-            });
-        });
+        this._showedEventsControllers.forEach((eventController) => eventController.setDefaultView());
     }
 
     _onFilterChange() {
@@ -10386,6 +10391,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _util_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util.js */ "./src/util.js");
 /* harmony import */ var _data_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../data.js */ "./src/data.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_2__);
+
 
 
 
@@ -10394,10 +10402,10 @@ const generateEvent = () => {
     const destination = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.pointsOfDestination);
     const offer = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomArrayElem)(_data_js__WEBPACK_IMPORTED_MODULE_1__.offers); 
     const dateFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)();
-    const dateTo = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)();
+    const dateTo = dateFrom;
     return {
         "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": dateFrom , // функция для определения
+        "date_from": dateFrom, // функция для определения
         "date_to": dateTo,
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": String(new Date() + Math.random), // Счетчик i
@@ -10575,6 +10583,7 @@ const remove = (component) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "getDeltaTime": () => (/* binding */ getDeltaTime),
+/* harmony export */   "getDayFormat": () => (/* binding */ getDayFormat),
 /* harmony export */   "formatTime": () => (/* binding */ formatTime),
 /* harmony export */   "formatDate": () => (/* binding */ formatDate),
 /* harmony export */   "generateEventsByFilter": () => (/* binding */ generateEventsByFilter),
@@ -10606,7 +10615,7 @@ const getRandomDate = () => {
 
     targetDate.setDate(targetDate.getDate() + diffValue);
     
-    return targetDate
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(targetDate);
 };
 
 const castTimeFormat = (value) => {
@@ -10614,22 +10623,26 @@ const castTimeFormat = (value) => {
 };
 
 const getDeltaTime = (start, end) => {
-    const delta = end - start;
+    console.log(start.diff(end, 'minutes'))
+    return start.diff(end, 'minutes');
+}
 
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(delta, true).format('mm');
+const getDayFormat = (date) => {
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format('D MMMM')
 }
 
 const formatTime = (date) => {
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date, true).format(`hh:mm`);
+
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format('hh:mm')
 };
     
 const formatDate = (date) => {
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format(`DD/MM/YY hh:mm`);
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date, true).format(`DD/MM/YY hh:mm`);
 };
 
 const sortDatesAscending = (arr) => {
     return arr.sort(function(a,b){
-        return a.date_from.getTime() - b.date_from.getTime()
+        return a.date_from.milliseconds - b.date_from.milliseconds
       }); 
 };
 

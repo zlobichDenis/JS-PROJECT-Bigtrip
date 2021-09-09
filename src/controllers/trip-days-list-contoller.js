@@ -180,11 +180,7 @@ export default class TripListController {
     }
 
     _onViewChange() {
-        this._showedEventsControllers.forEach((day) => {
-            day.forEach((tripEvent) => {
-                tripEvent.setDefaultView(tripEvent);
-            });
-        });
+        this._showedEventsControllers.forEach((eventController) => eventController.setDefaultView());
     }
 
     _onFilterChange() {

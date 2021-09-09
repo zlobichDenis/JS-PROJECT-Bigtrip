@@ -1,15 +1,16 @@
 import { getRandomArrayElem, getRandomIntNumber } from "../util.js";
 import { pointsOfDestination, offers } from "../data.js";
 import { getRandomDate } from "../util.js";
+import moment from "moment";
 
 const generateEvent = () => {
     const destination = getRandomArrayElem(pointsOfDestination);
     const offer = getRandomArrayElem(offers); 
     const dateFrom = getRandomDate();
-    const dateTo = getRandomDate();
+    const dateTo = dateFrom;
     return {
         "base_price": getRandomIntNumber(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": dateFrom , // функция для определения
+        "date_from": dateFrom, // функция для определения
         "date_to": dateTo,
         "destination": destination, // Массив состоящий из все точек путешествий
         "id": String(new Date() + Math.random), // Счетчик i
