@@ -9251,7 +9251,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
     this._startFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
-      // altFormat: moment().format('d/m/Y H:i'),
+      altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
@@ -9260,7 +9260,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
     this._endFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
-      // altFormat: 'd/m/Y H:i',
+      altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
@@ -9819,7 +9819,7 @@ class EventController {
         });
 
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
-            const selectedStartDate = flatpickr.selectedDates[0];
+            const selectedStartDate = moment__WEBPACK_IMPORTED_MODULE_6___default()(flatpickr.selectedDates[0]);
             tripEvent.date_from = selectedStartDate;
         });
 
@@ -9983,10 +9983,15 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     const eventsListComponent = new _components_trip_events_list__WEBPACK_IMPORTED_MODULE_7__.default();
     (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(eventDayComponent.getElement(), eventsListComponent, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);
 
+
     return tripEvents.map((tripEvent) => {
         return renderEvents(tripEvent, eventsListComponent, onDataChange, onViewChange);
     });
 };
+
+const getDefultSortEventByDate = (events) => {
+    return events.sort((a, b) => a.date_from - b.date_from);
+}
 
 const getSortedEvents = (events, activeSortType) => {
     const showingEvents = events.slice();
@@ -10054,8 +10059,12 @@ class TripListController {
         if (this._showedEventsControllers) {
             this._removeEvents();
         }
-        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);                   
-        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(events);
+
+        const sortedEvents = getDefultSortEventByDate(events);
+
+        (0,_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this._container, this._tripDaysList, _render_js__WEBPACK_IMPORTED_MODULE_8__.RenderPosition.BEFOREEND);  
+
+        this._tripEvents = (0,_util__WEBPACK_IMPORTED_MODULE_9__.groupByDays)(sortedEvents);
         this._tripDays = Object.keys(this._tripEvents);
 
         this._showedTripDays = this._tripDays.map((tripDate) => {
@@ -10583,7 +10592,6 @@ const remove = (component) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "getDeltaTime": () => (/* binding */ getDeltaTime),
-/* harmony export */   "getDayFormat": () => (/* binding */ getDayFormat),
 /* harmony export */   "formatTime": () => (/* binding */ formatTime),
 /* harmony export */   "formatDate": () => (/* binding */ formatDate),
 /* harmony export */   "generateEventsByFilter": () => (/* binding */ generateEventsByFilter),
@@ -10623,12 +10631,10 @@ const castTimeFormat = (value) => {
 };
 
 const getDeltaTime = (start, end) => {
-    console.log(start.diff(end, 'minutes'))
-    return start.diff(end, 'minutes');
-}
-
-const getDayFormat = (date) => {
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format('D MMMM')
+    start = moment__WEBPACK_IMPORTED_MODULE_0___default()(start).get('minute')
+    end = moment__WEBPACK_IMPORTED_MODULE_0___default()(end).get('minute')
+    // return start.diff(end, 'minutes');
+    return end - start;
 }
 
 const formatTime = (date) => {
@@ -10637,7 +10643,7 @@ const formatTime = (date) => {
 };
     
 const formatDate = (date) => {
-    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date, true).format(`DD/MM/YY hh:mm`);
+    return moment__WEBPACK_IMPORTED_MODULE_0___default()(date);
 };
 
 const sortDatesAscending = (arr) => {

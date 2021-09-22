@@ -61,7 +61,7 @@ export default class EventController {
         });
 
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
-            const selectedStartDate = flatpickr.selectedDates[0];
+            const selectedStartDate = moment(flatpickr.selectedDates[0]);
             tripEvent.date_from = selectedStartDate;
         });
 

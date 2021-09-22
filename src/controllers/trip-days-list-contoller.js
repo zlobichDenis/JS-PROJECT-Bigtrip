@@ -27,10 +27,15 @@ const renderEventsByDays = (tripEvents, container, indexOfDay, onDataChange, onV
     const eventsListComponent = new TripEventsList();
     render(eventDayComponent.getElement(), eventsListComponent, RenderPosition.BEFOREEND);
 
+
     return tripEvents.map((tripEvent) => {
         return renderEvents(tripEvent, eventsListComponent, onDataChange, onViewChange);
     });
 };
+
+const getDefultSortEventByDate = (events) => {
+    return events.sort((a, b) => a.date_from - b.date_from);
+}
 
 const getSortedEvents = (events, activeSortType) => {
     const showingEvents = events.slice();
@@ -98,8 +103,12 @@ export default class TripListController {
         if (this._showedEventsControllers) {
             this._removeEvents();
         }
-        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);                   
-        this._tripEvents = groupByDays(events);
+
+        const sortedEvents = getDefultSortEventByDate(events);
+
+        render(this._container, this._tripDaysList, RenderPosition.BEFOREEND);  
+
+        this._tripEvents = groupByDays(sortedEvents);
         this._tripDays = Object.keys(this._tripEvents);
 
         this._showedTripDays = this._tripDays.map((tripDate) => {

@@ -25,8 +25,10 @@ const castTimeFormat = (value) => {
 };
 
 export const getDeltaTime = (start, end) => {
-
-    return start.diff(end, 'minutes');
+    start = moment(start).get('minute')
+    end = moment(end).get('minute')
+    // return start.diff(end, 'minutes');
+    return end - start;
 }
 
 export const formatTime = (date) => {
@@ -35,7 +37,7 @@ export const formatTime = (date) => {
 };
     
 export const formatDate = (date) => {
-    return moment(date, true).format(`DD/MM/YY hh:mm`);
+    return moment(date);
 };
 
 const sortDatesAscending = (arr) => {
