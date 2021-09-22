@@ -58,6 +58,7 @@ export default class EventController {
 
         this._tripEditComponent.setDeleteBtnHandler((evt) => {
             evt.preventDefault();
+            this._onDataChange(this, tripEvent, null);
         });
 
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {

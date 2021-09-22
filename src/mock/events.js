@@ -9,13 +9,13 @@ const generateEvent = () => {
     const dateFrom = getRandomDate();
     const dateTo = dateFrom;
     return {
-        "base_price": getRandomIntNumber(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": dateFrom, // функция для определения
+        "base_price": getRandomIntNumber(100, 500), 
+        "date_from": dateFrom, 
         "date_to": dateTo,
-        "destination": destination, // Массив состоящий из все точек путешествий
-        "id": String(new Date() + Math.random), // Счетчик i
+        "destination": destination, 
+        "id": String(new Date() + Math.random), 
         "is_favorite": Math.random() > 0.5,
-        "offers": offer, // Массив состоящий из всех офферов каждого ивента
+        "offers": offer, 
     }
 };
 

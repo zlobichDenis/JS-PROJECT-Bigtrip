@@ -9049,11 +9049,11 @@ const parseForm = (data) => {
   });
 
   return {
-    "base_price": data.get('event-price'), // Сумма цент всех офферов путешествия
-    "date_from": data.get('event-start-time'), // функция для определения
+    "base_price": data.get('event-price'), 
+    "date_from": data.get('event-start-time'), 
     "date_to": data.get('event-end-time'),
-    "destination": pointOfDestination, // Массив состоящий из все точек путешествий
-    "id": String(new Date() + Math.random), // Счетчик i
+    "destination": pointOfDestination, 
+    "id": String(new Date() + Math.random), 
     "is_favorite": data.get('event-favorite'),
     "offers": eventData,
   }
@@ -9233,6 +9233,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
   recoveryListeners() {
     this._applyFlatpickr();
     this.setSaveBtnClickHandler(this._submitHandler);
+    this.setDeleteBtnHandler(this._deleteHandler);
     this._subscribeOnEvents();
     this.setOnStartDateChange();
     this.setOnEndDateChange();
@@ -9251,20 +9252,20 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
     this._startFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateFromElement, {
+      defaultDate: this._tripEvent.date_from,
       altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
-      defaultDate: this._tripEvent.date_from,
     });
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
     this._endFlatpickr = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__.default)(dateToElement, {
+      defaultDate: this._tripEvent.date_to,
       altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
-      defaultDate: this._tripEvent.date_to,
     });
   }
 
@@ -9274,6 +9275,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
     this.onChangePrice(element);
+    this.onChangeAvailableOffers(element);
   }
 
   setSaveBtnClickHandler(handler) {
@@ -9283,6 +9285,7 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
 
   setDeleteBtnHandler(handler) {
     this.getElement().querySelector('.event__reset-btn').addEventListener('click', handler);
+    this._deleteHandler = handler;
   }
 
   setFavoritesButton(element) {
@@ -9295,6 +9298,12 @@ class EditForm extends _abstract_smart_component_js__WEBPACK_IMPORTED_MODULE_2__
   onChangePrice(element) {
     element.querySelector('.event__input--price').addEventListener('input', (evt) => {
       this._tripEvent.basePrice = evt.target.value;
+    })
+  }
+
+  onChangeAvailableOffers(element) {
+    element.querySelector('.event__available-offers').addEventListener('change', (evt) => {
+      this._trip
     })
   }
 
@@ -9816,6 +9825,7 @@ class EventController {
 
         this._tripEditComponent.setDeleteBtnHandler((evt) => {
             evt.preventDefault();
+            this._onDataChange(this, tripEvent, null);
         });
 
         this._tripEditComponent.setOnStartDateChange((flatpickr, tripEvent) => {
@@ -10413,13 +10423,13 @@ const generateEvent = () => {
     const dateFrom = (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomDate)();
     const dateTo = dateFrom;
     return {
-        "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), // Сумма цент всех офферов путешествия
-        "date_from": dateFrom, // функция для определения
+        "base_price": (0,_util_js__WEBPACK_IMPORTED_MODULE_0__.getRandomIntNumber)(100, 500), 
+        "date_from": dateFrom, 
         "date_to": dateTo,
-        "destination": destination, // Массив состоящий из все точек путешествий
-        "id": String(new Date() + Math.random), // Счетчик i
+        "destination": destination, 
+        "id": String(new Date() + Math.random), 
         "is_favorite": Math.random() > 0.5,
-        "offers": offer, // Массив состоящий из всех офферов каждого ивента
+        "offers": offer, 
     }
 };
 

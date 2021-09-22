@@ -17,11 +17,11 @@ const parseForm = (data) => {
   });
 
   return {
-    "base_price": data.get('event-price'), // Сумма цент всех офферов путешествия
-    "date_from": data.get('event-start-time'), // функция для определения
+    "base_price": data.get('event-price'), 
+    "date_from": data.get('event-start-time'), 
     "date_to": data.get('event-end-time'),
-    "destination": pointOfDestination, // Массив состоящий из все точек путешествий
-    "id": String(new Date() + Math.random), // Счетчик i
+    "destination": pointOfDestination, 
+    "id": String(new Date() + Math.random), 
     "is_favorite": data.get('event-favorite'),
     "offers": eventData,
   }
@@ -201,6 +201,7 @@ export default class EditForm extends AbstractSmartComponent {
   recoveryListeners() {
     this._applyFlatpickr();
     this.setSaveBtnClickHandler(this._submitHandler);
+    this.setDeleteBtnHandler(this._deleteHandler);
     this._subscribeOnEvents();
     this.setOnStartDateChange();
     this.setOnEndDateChange();
@@ -219,20 +220,20 @@ export default class EditForm extends AbstractSmartComponent {
 
     const dateFromElement = this.getElement().querySelector('#event-start-time-1');
     this._startFlatpickr = flatpickr(dateFromElement, {
+      defaultDate: this._tripEvent.date_from,
       altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
-      defaultDate: this._tripEvent.date_from,
     });
 
     const dateToElement = this.getElement().querySelector('#event-end-time-1');
     this._endFlatpickr = flatpickr(dateToElement, {
+      defaultDate: this._tripEvent.date_to,
       altFormat: 'd/m/Y H:i',
       altInput: true,
       allowInput: true,
       enableTime: true,
-      defaultDate: this._tripEvent.date_to,
     });
   }
 
@@ -242,6 +243,7 @@ export default class EditForm extends AbstractSmartComponent {
     this.onChangeEventType(element);
     this.setFavoritesButton(element);
     this.onChangePrice(element);
+    this.onChangeAvailableOffers(element);
   }
 
   setSaveBtnClickHandler(handler) {
@@ -251,6 +253,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   setDeleteBtnHandler(handler) {
     this.getElement().querySelector('.event__reset-btn').addEventListener('click', handler);
+    this._deleteHandler = handler;
   }
 
   setFavoritesButton(element) {
@@ -263,6 +266,12 @@ export default class EditForm extends AbstractSmartComponent {
   onChangePrice(element) {
     element.querySelector('.event__input--price').addEventListener('input', (evt) => {
       this._tripEvent.basePrice = evt.target.value;
+    })
+  }
+
+  onChangeAvailableOffers(element) {
+    element.querySelector('.event__available-offers').addEventListener('change', (evt) => {
+      this._trip
     })
   }
 
